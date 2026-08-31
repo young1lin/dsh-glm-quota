@@ -11,7 +11,7 @@
  */
 
 window.__ModuleLoader__.load({
-  id: 'dsh-glm-quota',
+  id: '@young1lin/dsh-glm-quota',
   factory: (require) => {
     var module = { exports: {} }
     var exports = module.exports
@@ -64,11 +64,11 @@ window.__ModuleLoader__.load({
       'body[data-ds-dark-theme] .dshGlmRow.t4,body[data-ds-dark-theme] .dshGlm.rail.t4{color:#ff5d5d}',
       '@media (prefers-reduced-motion:reduce){.dshGlmFill,.dshGlmRingFill,.dshGlmRefresh{transition:none}.dshGlmRefreshIcon.spin{animation-duration:2s}}',
     ].join('')
-    const cssTag = 'dsh-glm-quota/styles.css'
+    const cssTag = '@young1lin/dsh-glm-quota/styles.css'
     if (typeof document !== 'undefined'
       && document.querySelector('style[data-plugin-css=' + JSON.stringify(cssTag) + ']') === null) {
       const tag = document.createElement('style')
-      tag.dataset.plugin = 'dsh-glm-quota'
+      tag.dataset.plugin = '@young1lin/dsh-glm-quota'
       tag.dataset.pluginCss = cssTag
       tag.textContent = css
       document.head.appendChild(tag)

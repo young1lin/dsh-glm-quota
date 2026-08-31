@@ -42,7 +42,7 @@ import z from '@deepseek-ai/schemastery'
 import { credentialRef } from '@deepseek-ai/dsh-credentials'
 
 /** Stable Cordis plugin name (informational; the entry id is the mount key). */
-export const name = 'dsh-glm-quota'
+export const name = '@young1lin/dsh-glm-quota'
 
 /** Services required before the route can register. */
 export const inject = ['webServer']

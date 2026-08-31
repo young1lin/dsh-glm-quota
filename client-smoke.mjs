@@ -50,7 +50,7 @@ let handoff = undefined
 globalThis.window = { __ModuleLoader__: { load(h) { handoff = h } } }
 const source = await readFile(new URL('./client.js', import.meta.url), 'utf8')
 new Function('window', source)(globalThis.window)
-assert.equal(handoff.id, 'dsh-glm-quota', 'handoff id matches the graph row id')
+assert.equal(handoff.id, '@young1lin/dsh-glm-quota', 'handoff id matches the graph row id')
 
 // --- materialize with an injected require over platform stubs ------------
 const platform = {

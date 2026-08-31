@@ -6,4 +6,4 @@
 # layer (~/.dsh/cordis.patch.yml) when needed.
 - insert:
     - id: dsh-glm-quota
-      name: dsh-glm-quota
+      name: '@young1lin/dsh-glm-quota'

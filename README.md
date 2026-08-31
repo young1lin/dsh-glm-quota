@@ -7,8 +7,8 @@
 **这是一个纯外部插件：不修改 dsh 本体任何代码。** 与宿主的全部接触点只有三处——
 本目录（源码）、一个目录 junction、用户配置层里的一行挂载（见[安装](#安装)）。
 
-npm 包名 **`dsh-glm-quota`**（npm 上的 `glm-quota` 已被他人占用）；从源码安装走下方 junction
-流程，无需构建步骤。
+npm 包名 **`@young1lin/dsh-glm-quota`**（scoped 包，公开发布）；源码安装走下方方式二，
+无需构建步骤。
 
 ---
 
@@ -31,8 +31,8 @@ dsh 的 Web 组合里，一个 UI 插件由两个半场组成，本包用无构�
 
 ### host 半场（host.js）
 
-- **挂载机制**：`~/.dsh/cordis.patch.yml` 里一行 `- insert: [{ id: dsh-glm-quota, name: 'dsh-glm-quota', config: {...} }]`。
-  loader 通过 profile 目录的 node_modules 向上查找解析包名（`~/.dsh/profiles/node_modules/dsh-glm-quota`
+- **挂载机制**：`~/.dsh/cordis.patch.yml` 里一行 `- insert: [{ id: dsh-glm-quota, name: '@young1lin/dsh-glm-quota', config: {...} }]`。
+  loader 通过 profile 目录的 node_modules 向上查找解析包名（`~/.dsh/profiles/node_modules/@young1lin/dsh-glm-quota`
   junction 到本目录），直接 import 源码 —— 原生 ESM，无需编译。**挂载行的 `name` 同时是浏览器侧
   标识**：client bundle 的 boot graph id 与 `/plugins/<name>/client.js` URL 都由它派生，
   `client.js` 里的 handoff id 必须与之一致。
@@ -46,7 +46,7 @@ dsh 的 Web 组合里，一个 UI 插件由两个半场组成，本包用无构�
 - **发现机制**：`package.json` 里的 `"dsh": { "client": { "platform": "web" } }` 清单。
   宿主的 `dsh-client-modules` 服务启动时扫描 loader 全部条目，发现此声明后把
   `./client` 导出加入浏览器 boot graph（`window.__DSH_BOOT__`），浏览器按
-  `/plugins/dsh-glm-quota/client.js` 拉取。
+  `/plugins/@young1lin/dsh-glm-quota/client.js` 拉取。
 - **格式**：手写的模块系统 factory bundle —— 整个文件是一次
   `window.__ModuleLoader__.load({ id, factory })` 调用；React、Tooltip 等平台模块通过
   注入的 `require` 从宿主模块表获取（跨包零值导入，全部走 cordis 服务与插槽）。
@@ -76,7 +76,7 @@ bump 源码里的 `MODULE_REV` 常量）。
 
 ```powershell
 # 前置：Node ≥ 22、dsh ≥ 0.1.1、pnpm 在 PATH 上（corepack enable 或 npm i -g pnpm）
-dsh plugin --profile web add dsh-glm-quota
+dsh plugin --profile web add @young1lin/dsh-glm-quota
 dsh web    # 重启宿主（host 半场是模块代码）
 ```
 
@@ -89,12 +89,13 @@ dsh web    # 重启宿主（host 半场是模块代码）
 ```yaml
 # ~/.dsh/cordis.patch.yml —— 只覆盖需要改的键
 - id: dsh-glm-quota
-  name: dsh-glm-quota
+  name: '@young1lin/dsh-glm-quota'
   config:
     baseURL: 'https://api.z.ai'
 ```
 
-升级 `dsh plugin --profile web update dsh-glm-quota`；卸载 `dsh plugin --profile web remove dsh-glm-quota`。
+升级 `dsh plugin --profile web update @young1lin/dsh-glm-quota`；
+卸载 `dsh plugin --profile web remove @young1lin/dsh-glm-quota`。
 
 ### 方式二：源码 junction 安装（本仓库开发 / 无 npm 环境）
 
@@ -161,8 +162,9 @@ foreach ($p in 'schemastery', 'dsh-credentials') {
   }
 }
 
-# 1b. 挂载 junction：loader 从 profile 的 node_modules 解析包名 'dsh-glm-quota'
-$mount = "$profiles\node_modules\dsh-glm-quota"
+# 1b. 挂载 junction：loader 从 profile 的 node_modules 解析包名 '@young1lin/dsh-glm-quota'
+New-Item -ItemType Directory -Force "$profiles\node_modules\@young1lin" | Out-Null
+$mount = "$profiles\node_modules\@young1lin\dsh-glm-quota"
 if (-not (Test-Path $mount)) {
   New-Item -ItemType Junction -Path $mount -Value $plugin | Out-Null
   Write-Host 'mount junction created'
@@ -177,7 +179,7 @@ if (-not (Select-String -Path $patch -Pattern 'id: dsh-glm-quota' -Quiet)) {
 # All config keys are optional; full reference in the plugin README.
 - insert:
     - id: dsh-glm-quota
-      name: 'dsh-glm-quota'
+      name: '@young1lin/dsh-glm-quota'
       config:
         keyRef: ZAI_CODING_CN_API_KEY
         baseURL: 'https://open.bigmodel.cn'
@@ -193,11 +195,11 @@ if (-not (Select-String -Path $patch -Pattern 'id: dsh-glm-quota' -Quiet)) {
 
 # 1d. 自检：host 半场能被 Node 从 profile 目录解析
 Push-Location $profiles
-node -e "import('dsh-glm-quota').then(m => console.log('host half OK:', m.name, '| inject:', m.inject.join(','))).catch(e => { console.error('FAIL:', e.message); process.exit(1) })"
+node -e "import('@young1lin/dsh-glm-quota').then(m => console.log('host half OK:', m.name, '| inject:', m.inject.join(','))).catch(e => { console.error('FAIL:', e.message); process.exit(1) })"
 Pop-Location
 ```
 
-最后一行输出 `host half OK: dsh-glm-quota | inject: webServer` 即本步成功。
+最后一行输出 `host half OK: @young1lin/dsh-glm-quota | inject: webServer` 即本步成功。
 config 键的含义与默认值见下方[配置参考](#配置参考)，全部可省略。
 
 ### 第 2 步：重启 dsh web 并验证
@@ -224,7 +226,7 @@ dsh-vision-router 插件。
 
 ### 分发给他人（接收方注意事项）
 
-已发布 npm：接收方 `dsh plugin --profile web add dsh-glm-quota` 一条命令即装（方式一）。
+已发布 npm：接收方 `dsh plugin --profile web add @young1lin/dsh-glm-quota` 一条命令即装（方式一）。
 离线场景用 zip（`git archive` 导出）走源码 junction 安装（方式二）——包不含任何 key
 与机器特定信息，可直接分发。两种方式都**有两个值必须对照自己的
 `~/.dsh/settings.yaml` 核对**——插件的默认值按 `zai-coding-cn` 这套常见配置写死，
@@ -245,7 +247,7 @@ dsh-vision-router 插件。
 #    （从 "# dsh-glm-quota:" 注释行到 "rateLimitBackoffMs" 行）。热生效：
 #    路由、事件监听、定时器随 fiber 销毁，无需重启。
 # 2. 删 junction（源码目录保留，可随时重装）：
-Remove-Item "$env:USERPROFILE\.dsh\profiles\node_modules\dsh-glm-quota"
+Remove-Item "$env:USERPROFILE\.dsh\profiles\node_modules\@young1lin\dsh-glm-quota"
 Remove-Item "$plugin\node_modules" -Recurse -Force
 # 3. 可选：删磁盘缓存与源码目录
 Remove-Item "$env:USERPROFILE\.agents\glm-quota" -Recurse -Force

@@ -7,9 +7,11 @@
 
 ### 新增
 
-- 声明 `dsh.bundle.patch`（随包发布 `cordis.patch.yml` 挂载行）：
-  `dsh plugin --profile web add dsh-glm-quota` 现在一条命令完成安装与挂载，
-  无需再手工编辑 `~/.dsh/cordis.patch.yml`。
+- 包名改为 scoped：**`@young1lin/dsh-glm-quota`**（0.1.0 曾以非 scoped 名
+  `dsh-glm-quota` 发布过一次，已废弃）。安装：
+  `dsh plugin --profile web add @young1lin/dsh-glm-quota`。
+- 声明 `dsh.bundle.patch`（随包发布 `cordis.patch.yml` 挂载行）：`dsh plugin add`
+  一条命令完成安装与挂载，无需再手工编辑 `~/.dsh/cordis.patch.yml`。
 
 ## [0.1.0] - 2026-08-31
 
