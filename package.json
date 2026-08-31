@@ -1,6 +1,6 @@
 {
   "name": "dsh-glm-quota",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DSH plugin: Zhipu/GLM Coding Plan quota — host fetch/cache/backoff half (serves GET /glm-quota/state) plus a sidebar-foot progress-bar panel (client half)",
   "author": "young1lin",
   "repository": {
@@ -19,6 +19,7 @@
   "files": [
     "host.js",
     "client.js",
+    "cordis.patch.yml",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
@@ -30,6 +31,9 @@
     "test": "node smoke.mjs && node client-smoke.mjs"
   },
   "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "inject": [],
       "platform": "web"

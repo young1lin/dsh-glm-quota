@@ -3,6 +3,14 @@
 记录用户可感知的变化；格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 版本号见 `package.json`。
 
+## [0.1.1] - 2026-08-31
+
+### 新增
+
+- 声明 `dsh.bundle.patch`（随包发布 `cordis.patch.yml` 挂载行）：
+  `dsh plugin --profile web add dsh-glm-quota` 现在一条命令完成安装与挂载，
+  无需再手工编辑 `~/.dsh/cordis.patch.yml`。
+
 ## [0.1.0] - 2026-08-31
 
 首个 npm 发布（包名 `dsh-glm-quota`；npm 上的 `glm-quota` 已被他人占用）。

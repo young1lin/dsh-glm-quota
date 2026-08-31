@@ -70,8 +70,36 @@ bump 源码里的 `MODULE_REV` 常量）。
 
 ## 安装
 
-全新机器（或重装 dsh 后）从零安装，按顺序执行。整个过程**不修改 dsh 本体**；
-所有命令幂等，重复执行安全。分发包（zip）接收者同样从这里开始。
+### 方式一：npm 安装（推荐）
+
+包已发布到 npm（`dsh-glm-quota`），用 dsh 自带的插件管理命令一条完成安装与挂载：
+
+```powershell
+# 前置：Node ≥ 22、dsh ≥ 0.1.1、pnpm 在 PATH 上（corepack enable 或 npm i -g pnpm）
+dsh plugin --profile web add dsh-glm-quota
+dsh web    # 重启宿主（host 半场是模块代码）
+```
+
+浏览器 F5 后，左下角 Settings 上方出现额度面板。`dsh plugin` 会把包装进 profile
+（`~/.dsh/profiles/web`）并把包内自带的挂载行（`cordis.patch.yml`）加入 profile 层——
+**无需手工编辑任何 yml**。默认配置即开即用；需要覆盖配置（z.ai 的 baseURL、自定义
+`watchProviders` 等）时，在 `~/.dsh/cordis.patch.yml` 写一个同 id 行提供 config 值即可
+（键见[配置参考](#配置参考)）：
+
+```yaml
+# ~/.dsh/cordis.patch.yml —— 只覆盖需要改的键
+- id: dsh-glm-quota
+  name: dsh-glm-quota
+  config:
+    baseURL: 'https://api.z.ai'
+```
+
+升级 `dsh plugin --profile web update dsh-glm-quota`；卸载 `dsh plugin --profile web remove dsh-glm-quota`。
+
+### 方式二：源码 junction 安装（本仓库开发 / 无 npm 环境）
+
+全新机器（或重装 dsh 后）从源码安装，按顺序执行。整个过程**不修改 dsh 本体**；
+所有命令幂等，重复执行安全。
 
 ### 前置条件
 
@@ -196,8 +224,9 @@ dsh-vision-router 插件。
 
 ### 分发给他人（接收方注意事项）
 
-插件包不含任何 key 与机器特定信息，可直接分发（zip 由 `git archive` 导出，见
-"开发与调试"）。接收方从"前置条件"开始走安装即可，但**有两个值必须对照自己的
+已发布 npm：接收方 `dsh plugin --profile web add dsh-glm-quota` 一条命令即装（方式一）。
+离线场景用 zip（`git archive` 导出）走源码 junction 安装（方式二）——包不含任何 key
+与机器特定信息，可直接分发。两种方式都**有两个值必须对照自己的
 `~/.dsh/settings.yaml` 核对**——插件的默认值按 `zai-coding-cn` 这套常见配置写死，
 不匹配则额度刷新不触发：
 

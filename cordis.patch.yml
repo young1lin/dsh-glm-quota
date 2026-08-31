@@ -1,0 +1,9 @@
+# Bundle patch layer: the row loads the package's main entry as the host half
+# (a plain Cordis plugin); the dsh.client declaration in package.json makes the
+# web app load its ./client bundle as the browser half. `dsh plugin --profile
+# <name> add dsh-glm-quota` mounts this file automatically. All config keys
+# are optional (defaults in host.js Config); override them in the user config
+# layer (~/.dsh/cordis.patch.yml) when needed.
+- insert:
+    - id: dsh-glm-quota
+      name: dsh-glm-quota
