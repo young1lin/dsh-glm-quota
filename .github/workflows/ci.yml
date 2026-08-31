@@ -1,0 +1,54 @@
+# CI for the no-build dual-face plugin: install nothing permanent, run both
+# smoke halves, and check the npm tarball manifest. There is no bundler, no
+# lockfile, and no lint/typecheck step by design — host.js/client.js are the
+# shipped sources.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # The package ships with no dependencies; on a real machine the peer
+      # halves resolve from dsh's profiles tree (junctions). On CI there is no
+      # dsh install, so fetch the published peers + React for the smoke tests.
+      # --no-save keeps package.json and the tree lockfile-free by design.
+      - name: Install smoke-test dependencies (peers + React, not saved)
+        run: npm install --no-save @deepseek-ai/schemastery @deepseek-ai/dsh-credentials react react-dom
+
+      - name: Test (host + client smokes)
+        run: npm test
+
+      - name: Pack (tarball manifest check)
+        run: npm pack --dry-run
+
+      # The shipped sources are hand-written; guard against any contributor
+      # path or machine name landing in them (files ships only host.js /
+      # client.js / docs, but this check is cheap and permanent).
+      - name: Scan sources for machine paths
+        shell: bash
+        run: |
+          if grep -rInE --include='*.js' --include='*.mjs' '/home/runner|/Users/[A-Za-z]|/root/|[A-Za-z]:\\Users' . --exclude-dir=node_modules; then
+            echo "::error::machine path leaked into sources (matches above)"
+            exit 1
+          fi
+          echo "sources clean: no machine paths"

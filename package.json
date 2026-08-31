@@ -1,0 +1,53 @@
+{
+  "name": "dsh-glm-quota",
+  "version": "0.1.0",
+  "description": "DSH plugin: Zhipu/GLM Coding Plan quota — host fetch/cache/backoff half (serves GET /glm-quota/state) plus a sidebar-foot progress-bar panel (client half)",
+  "author": "young1lin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/young1lin/dsh-glm-quota.git"
+  },
+  "homepage": "https://github.com/young1lin/dsh-glm-quota#readme",
+  "bugs": "https://github.com/young1lin/dsh-glm-quota/issues",
+  "type": "module",
+  "main": "host.js",
+  "exports": {
+    ".": "./host.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "host.js",
+    "client.js",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node smoke.mjs && node client-smoke.mjs"
+  },
+  "dsh": {
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "cordis",
+    "plugin",
+    "zhipu",
+    "glm",
+    "coding-plan",
+    "quota"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@deepseek-ai/dsh-credentials": "*",
+    "@deepseek-ai/schemastery": "*"
+  }
+}
