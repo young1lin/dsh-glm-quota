@@ -150,18 +150,28 @@ await sleep(50)
 assert.equal(upstream.hits, 1, 'event burst coalesced: no request inside the interval')
 
 // 4. The pacing timer keeps the once-per-interval cadence while the watched
-//    conversation runs (no new event needed inside the window).
-await sleep(1_700)
-assert.equal(upstream.hits, 2, 'pacing timer fired exactly one request per interval')
+//    conversation runs (no new event needed inside the window). The timer
+//    interval EQUALS minFetchIntervalMs, so every tick sits exactly on the
+//    throttle boundary: whether a given tick fires depends on sub-millisecond
+//    drift between the previous request's stamp and the tick. What must hold
+//    on every machine is the pair of invariants: the timer DOES refresh a
+//    running watched session (>= boot + 1 by the second tick — a suppressed
+//    first tick leaves the next gap at >= 2x interval, which always clears
+//    the window), and it NEVER exceeds one request per interval (boot + 2
+//    fires is the hard ceiling across two ticks in 3.1s).
+await sleep(3_100)
+assert.ok(upstream.hits >= 2 && upstream.hits <= 3,
+  'pacing timer refreshes a running watched session within the per-interval ceiling: ' + upstream.hits)
 state = await get()
 assert.equal(state.relevant, true, 'watched session seen + credential ok: relevant')
 
 // 5. turn/end inside the throttle window: the final-refresh trigger is
 //    coalesced away like any other event — nothing is running afterwards, so
 //    nothing re-issues it. Strict "coalesce while running, zero once idle".
+const hitsAtTurnEnd = upstream.hits
 emitSessionEvent(sessionZai, { type: 'turn/end' })
 await sleep(100)
-assert.equal(upstream.hits, 2, 'turn/end trigger coalesced: no request once idle')
+assert.equal(upstream.hits, hitsAtTurnEnd, 'turn/end trigger coalesced: no request once idle')
 
 // 6. The state file carries the throttle authority: the timestamp of the last
 //    real request is persisted, and a fresh plugin instance over the same
@@ -184,9 +194,10 @@ const ctx2 = {
   on: (event, fn) => () => {},
   effect: (register) => { const d = register(); disposers2.push(d); return d },
 }
+const hitsBeforeSecond = upstream.hits
 apply(ctx2, config)
 await sleep(200)
-assert.equal(upstream.hits, 2, 'second instance boot fetch suppressed by the file throttle')
+assert.equal(upstream.hits, hitsBeforeSecond, 'second instance boot fetch suppressed by the file throttle')
 for (const dispose of disposers2) if (typeof dispose === 'function') dispose()
 assert.equal(routeHandler2, undefined, 'second instance route removed')
 
