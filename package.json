@@ -1,10 +1,10 @@
 {
   "name": "@young1lin/dsh-glm-quota",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publishConfig": {
     "access": "public"
   },
-  "description": "DSH plugin: Zhipu/GLM Coding Plan quota — host fetch/cache/backoff half (serves GET /glm-quota/state) plus a sidebar-foot progress-bar panel (client half)",
+  "description": "DSH plugin: Zhipu/GLM Coding Plan quota — host fetch/cache/backoff plus a compact sidebar status and on-demand quota popover",
   "author": "young1lin",
   "repository": {
     "type": "git",

@@ -58,6 +58,7 @@ const platform = {
   '@deepseek-ai/dsh-client-ui-primitives': {
     Tooltip: (props) => props.children,
     IconChevronDownOutline14: (props) => React.createElement('svg', { className: props.className, 'data-chevron': true }),
+    IconRefreshOutline14: (props) => React.createElement('svg', { className: props.className, 'data-refresh': true }),
   },
 }
 const requireShim = (spec) => {
@@ -125,7 +126,7 @@ await new Promise((r) => { setTimeout(r, 10) })
 assert.ok(fetchCalls.some((u) => u.includes('refresh=1')), 'refresh=1 fetch fired')
 off()
 
-// --- SSR render: wide panel shows bars, weekly row, MCP counts, next reset.
+// --- SSR render: wide card shows quota metrics, weekly data, MCP counts, and resets.
 const hookOf = (snap_) => (sel) => sel(snap_)
 const wide = renderToString(React.createElement(registration.component, {
   wide: true,
@@ -134,17 +135,23 @@ const wide = renderToString(React.createElement(registration.component, {
 }))
 assert.ok(wide.includes('GLM'), 'plan title rendered')
 assert.ok(wide.includes('Pro'), 'plan level rendered')
-assert.ok(wide.includes('周限'), 'weekly row rendered with the 周限 label')
-assert.ok(wide.includes('MCP'), 'mcp row rendered')
-assert.ok(wide.includes('12/30'), 'mcp counts rendered')
+assert.ok(wide.includes('周额度'), 'weekly metric rendered only when the 7d window exists')
+assert.ok(wide.includes('MCP 调用'), 'mcp metric rendered')
+assert.ok(wide.includes('12'), 'mcp used count rendered')
+assert.ok(wide.includes('/ 30'), 'mcp limit rendered')
 assert.ok(wide.includes('43%'), '5h percent rendered')
 assert.ok(wide.includes('17%'), 'weekly percent rendered')
-// Per-window reset footer: 5h resets in 1h30m, weekly in 3d0h (both visible, not nearest-only).
-assert.ok(wide.includes('↻ 5h 剩1h30m'), 'footer lists the 5h reset countdown')
-assert.ok(wide.includes('周限 剩3d0h'), 'footer lists the weekly reset countdown')
-assert.ok(wide.includes('重置于'), 'footer tooltip carries absolute reset times')
-assert.ok(wide.includes('dshGlmRow t2'), '5h tier class: cyan at 42.5%')
-assert.ok(wide.includes('dshGlmRow t0'), 'weekly tier class: bright green at 17.2%')
+// Each metric owns its countdown; the weekly reset can never hide behind the 5h reset.
+assert.ok(wide.includes('1h30m 后重置'), '5h metric shows its reset countdown')
+assert.ok(wide.includes('3d0h 后重置'), 'weekly metric shows its reset countdown')
+assert.ok(wide.includes('重置于'), 'metric tooltip carries the absolute reset time')
+assert.ok(wide.includes('dshGlmMetric t2'), '5h tier class: cyan at 42.5%')
+assert.ok(wide.includes('dshGlmMetric t0'), 'weekly tier class: bright green at 17.2%')
+assert.ok(wide.includes('dshGlmCompact'), 'wide mode keeps only one compact footer row in layout')
+assert.ok(wide.includes('dshGlmPopover'), 'quota details render in a transient popover')
+assert.ok(wide.includes('dshGlmGauge'), 'detail metrics use compact circular gauges instead of progress bars')
+assert.ok(wide.includes('dshGlmCompactRing'), 'compact status row carries a worst-window ring')
+assert.ok(!wide.includes('dshGlmTrack'), 'the redesigned UI ships no linear progress tracks')
 
 // Rail form: worst-percent number with its tier color.
 const rail = renderToString(React.createElement(registration.component, {
@@ -164,11 +171,11 @@ const wideNoWeekly = renderToString(React.createElement(registration.component, 
   useQuota: hookOf(noWeekly),
   refresh: () => {},
 }))
-assert.ok(!wideNoWeekly.includes('dshGlmRow t0'), 'no weekly window: no weekly row')
-assert.ok(!wideNoWeekly.includes('周限 剩'), 'no weekly window: no weekly reset in the footer')
-// Collapse control ships on every wide render (body visibility is CSS-driven).
-assert.ok(wideNoWeekly.includes('dshGlmCollapse'), 'collapse control rendered')
-assert.ok(wideNoWeekly.includes('dshGlmBody'), 'body element present')
+assert.ok(!wideNoWeekly.includes('周额度'), 'no weekly window: no weekly metric')
+assert.ok(!wideNoWeekly.includes('3d0h 后重置'), 'no weekly window: no weekly countdown')
+// Details stay in the DOM for accessibility, while CSS keeps the popover out of layout until opened.
+assert.ok(wideNoWeekly.includes('aria-expanded="false"'), 'compact trigger starts closed')
+assert.ok(wideNoWeekly.includes('dsh-glm-quota-details'), 'compact trigger controls the detail popover')
 
 // Irrelevant host: the panel removes itself from the sidebar entirely.
 const irrelevant = renderToString(React.createElement(registration.component, {
