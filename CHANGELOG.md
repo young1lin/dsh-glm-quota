@@ -3,7 +3,7 @@
 记录用户可感知的变化；格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 版本号见 `package.json`。
 
-## [0.1.3] - 未发布
+## [0.1.3] - 2026-09-02
 
 ### 改进
 
