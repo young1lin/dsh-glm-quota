@@ -1,7 +1,7 @@
 # glm-quota — DSH 外部插件：智谱 GLM Coding Plan 额度面板
 
 在 DSH Web GUI 左下角（Settings 按钮上方）显示智谱 GLM Coding Plan 的额度：
-进度条式多窗口用量、五档配色、MCP 调用次数、下次刷新时间倒计时。
+多窗口用量圆环、五档配色、MCP 调用次数、逐窗口重置倒计时。
 侧栏折叠时逐窗口显示纯额度：5h（及存在时的周额度 7d）小圆环，环弧示用量、环下重置倒计时，不含 MCP 次数与套餐名（精确百分比在悬停 Tooltip）。
 
 **这是一个纯外部插件：不修改 dsh 本体任何代码。** 与宿主的全部接触点只有三处——
@@ -72,10 +72,10 @@ bump 源码里的 `MODULE_REV` 常量）。
 
 ### 方式一：npm 安装（推荐）
 
-包已发布到 npm（`dsh-glm-quota`），用 dsh 自带的插件管理命令一条完成安装与挂载：
+包已发布到 npm（`@young1lin/dsh-glm-quota`），用 dsh 自带的插件管理命令一条完成安装与挂载：
 
 ```powershell
-# 前置：Node ≥ 22、dsh ≥ 0.1.1、pnpm 在 PATH 上（corepack enable 或 npm i -g pnpm）
+# 前置：Node ≥ 22、dsh ≥ 0.1.1-rc.1（含 dsh plugin 命令）、pnpm 在 PATH 上（corepack enable 或 npm i -g pnpm）
 dsh plugin --profile web add @young1lin/dsh-glm-quota
 dsh web    # 重启宿主（host 半场是模块代码）
 ```
@@ -238,7 +238,7 @@ dsh-vision-router 插件。
 | key 引用名 | 同 provider 声明的 `apiKeyEnv` | 挂载行 `keyRef: <你的apiKeyEnv>` |
 
 其余差异：z.ai 账号（非 bigmodel.cn）把 `baseURL` 改为 `https://api.z.ai`；
-周限窗口是否显示由计划决定（pro/lite 有、Max 当前无），见"面板显示"。
+周限窗口是否显示由计划决定（pro/lite 有、Max 当前无），见"实现原理 → client 半场核心机制"。
 
 ### 卸载
 

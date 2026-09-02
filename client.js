@@ -62,7 +62,7 @@ window.__ModuleLoader__.load({
       '.dshGlm.rail{width:36px;height:36px;margin:8px 0 10px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;transition:background .15s}',
       '.dshGlm.rail:hover{background:var(--dsw-alias-interactive-bg-hover)}',
       '.dshGlmRail{width:36px;margin:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:6px}',
-      '.dshGlmRailItem{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;border:none;border-radius:12px;background:transparent;cursor:pointer;transition:background .15s}',
+      '.dshGlmRailItem{box-sizing:border-box;width:36px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;border:none;border-radius:12px;background:transparent;cursor:pointer;transition:background .15s;user-select:none}',
       '.dshGlmRailItem:hover{background:var(--dsw-alias-interactive-bg-hover)}',
       '.dshGlmRailItem:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:1px}',
       '.dshGlmRailCd{color:var(--dsw-alias-label-tertiary);font-size:10px;line-height:12px;font-weight:500;font-variant-numeric:tabular-nums}',
@@ -95,7 +95,7 @@ window.__ModuleLoader__.load({
       'body[data-ds-dark-theme] .dshGlmRailItem.t2 .dshGlmSvg{color:#22d3ee}',
       'body[data-ds-dark-theme] .dshGlmRailItem.t3 .dshGlmSvg{color:#ffb020}',
       'body[data-ds-dark-theme] .dshGlmRailItem.t4 .dshGlmSvg{color:#ff5d5d}',
-      '@media (prefers-reduced-motion:reduce){.dshGlmPopover,.dshGlmRingFill,.dshGlmAction,.dshGlmChevron{transition:none;animation:none}.dshGlmRefreshIcon.spin{animation-duration:2s}}',
+      '@media (prefers-reduced-motion:reduce){.dshGlmPopover,.dshGlmRingFill,.dshGlmAction,.dshGlmChevron,.dshGlmRailItem,.dshGlm.rail{transition:none;animation:none}.dshGlmRefreshIcon.spin{animation-duration:2s}}',
     ].join('')
     const cssTag = '@young1lin/dsh-glm-quota/styles.css'
     if (typeof document !== 'undefined'
@@ -151,7 +151,7 @@ window.__ModuleLoader__.load({
 
     /** One quota metric: a quiet circular gauge plus label, reset, and exact value. */
     function QuotaMetric({ label, window: w, now }) {
-      const pct = Math.max(0, Math.min(100, w.percent))
+      const pct = Math.max(0, Math.min(100, pctOf(w)))
       const tier = tierOf(pct)
       const ringPct = pct <= 0 ? 4 : pct
       const isCount = w.id === 'mcp' && w.used !== undefined && w.limit !== undefined
@@ -186,6 +186,16 @@ window.__ModuleLoader__.load({
           : React.createElement('span', { className: 'dshGlmValue' }, Math.round(pct) + '%'))
     }
 
+    /** Finite percent of a window: non-numeric upstream data reads as 0, never NaN. */
+    function pctOf(w) {
+      return Number.isFinite(w.percent) ? w.percent : 0
+    }
+
+    /** Whether a window is a token-quota window (drives headline + rail). */
+    function isTokenWindow(w) {
+      return w.id === '5h' || w.id === '7d' || String(w.id).startsWith('tok-')
+    }
+
     /** Display label for a rail item: friendly for the known ids, raw otherwise. */
     function railLabel(w) {
       if (w.id === '5h') return '5 小时窗口'
@@ -199,12 +209,12 @@ window.__ModuleLoader__.load({
      * counts, no digits inside the ring (tooltip carries the exact percent).
      */
     function QuotaRailItem({ label, window: w, now, refresh, stale }) {
-      const pct = Math.max(0, Math.min(100, w.percent))
+      const pct = Math.max(0, Math.min(100, pctOf(w)))
       const tier = tierOf(pct)
       const ringPct = pct <= 0 ? 4 : pct
       const left = countdown(w.resetAt, now)
       const title = label + ' ' + Math.round(pct) + '%'
-        + (left !== '' ? '，剩 ' + left + ' 刷新' : '')
+        + (left === '即将刷新' ? '，即将重置' : left !== '' ? '，剩 ' + left + ' 重置' : '')
         + (w.resetAt > 0 ? '（' + absoluteTime(w.resetAt, now) + '）' : '')
         + (stale ? '（获取失败，显示上次数据）' : '')
       return React.createElement(Tooltip, { label: title, delayMs: 300 },
@@ -220,7 +230,7 @@ window.__ModuleLoader__.load({
               className: 'dshGlmRingFill', cx: 18, cy: 18, r: 15.5,
               strokeDasharray: (RING_C * ringPct / 100) + ' ' + RING_C,
             })),
-          left !== '' ? React.createElement('span', { className: 'dshGlmRailCd' }, left) : null))
+          left !== '' ? React.createElement('span', { className: 'dshGlmRailCd' }, left === '即将刷新' ? '0m' : left) : null))
     }
 
     /**
@@ -294,9 +304,9 @@ window.__ModuleLoader__.load({
       // windows disagree (7d 10% over 5h 5%) the closer-to-limit one leads —
       // the headline reads "distance to the nearest token ceiling". MCP-only
       // data falls back to MCP so the row never goes blank.
-      const quotaWindows = windows.filter((w) => w.id !== 'mcp')
+      const quotaWindows = windows.filter(isTokenWindow)
       const worstPool = quotaWindows.length > 0 ? quotaWindows : windows
-      const worst = worstPool.reduce((acc, w) => Math.max(acc, w.percent), 0)
+      const worst = worstPool.reduce((acc, w) => Math.max(acc, pctOf(w)), 0)
       const worstTier = tierOf(worst)
       const summary = 'GLM' + (data.planLevel !== '' ? ' · ' + data.planLevel : '') + ' — '
         + windows.map((w) => (w.id === 'mcp' && w.used !== undefined && w.limit !== undefined
@@ -308,10 +318,11 @@ window.__ModuleLoader__.load({
       // dot at 0% is nearly invisible and the control reads as empty space.
       const ringPct = worst <= 0 ? 4 : Math.max(0, Math.min(100, worst))
       if (!wide) {
-        // Pure quota per window: the 5h ring (percent inside, reset countdown
-        // under it) and, when the plan has a weekly limit, the 7d ring below.
-        // No plan name, no MCP counts, no blended worst-window ring.
-        const railWindows = windows.filter((w) => w.id !== 'mcp')
+        // Pure quota per token window: the 5h ring, the 7d ring below when
+        // the plan has a weekly limit, unknown token windows after. The arc
+        // encodes the share, the reset countdown sits under it. No plan
+        // name, no MCP, no digits, no blended worst-window ring.
+        const railWindows = windows.filter(isTokenWindow)
         if (railWindows.length > 0) {
           return React.createElement('div', { className: 'dshGlmRail' },
             railWindows.map((w) => React.createElement(QuotaRailItem, {
