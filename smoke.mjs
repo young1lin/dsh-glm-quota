@@ -104,8 +104,12 @@ const get = async (refresh) => {
   return JSON.parse(res.body)
 }
 
-// 1. Boot fetch serves the mapped projection.
-await sleep(50)
+// 1. Boot fetch serves the mapped projection. Poll instead of a fixed
+//    sleep: a cold CI runner can take longer than 50ms to round-trip the
+//    read-state-file -> write-state-file -> HTTP chain. The throttle still
+//    caps the boot sequence at exactly one request, so === 1 stays strict.
+const bootDeadline = Date.now() + 5_000
+while (upstream.hits < 1 && Date.now() < bootDeadline) await sleep(25)
 let state = await get()
 assert.equal(upstream.hits, 1, 'one boot fetch')
 assert.equal(state.planLevel, 'Pro')
