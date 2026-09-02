@@ -61,6 +61,11 @@ window.__ModuleLoader__.load({
       '.dshGlmWarn{flex:none;width:6px;height:6px;border-radius:50%;background:#ff9f0a;box-shadow:0 0 0 2px color-mix(in srgb,#ff9f0a 18%,transparent)}',
       '.dshGlm.rail{width:36px;height:36px;margin:8px 0 10px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;transition:background .15s}',
       '.dshGlm.rail:hover{background:var(--dsw-alias-interactive-bg-hover)}',
+      '.dshGlmRail{width:36px;margin:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:6px}',
+      '.dshGlmRailItem{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;border:none;border-radius:12px;background:transparent;cursor:pointer;transition:background .15s}',
+      '.dshGlmRailItem:hover{background:var(--dsw-alias-interactive-bg-hover)}',
+      '.dshGlmRailItem:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:1px}',
+      '.dshGlmRailCd{color:var(--dsw-alias-label-tertiary);font-size:10px;line-height:12px;font-weight:500;font-variant-numeric:tabular-nums}',
       '.dshGlmSvg{transform:rotate(-90deg)}',
       '.dshGlmRingTrack{fill:none;stroke:var(--dsw-alias-border-l2);stroke-width:5}',
       '.dshGlmRingFill{fill:none;stroke:currentColor;stroke-width:5;stroke-linecap:round;transition:stroke-dasharray .6s cubic-bezier(.22,1,.36,1)}',
@@ -74,12 +79,22 @@ window.__ModuleLoader__.load({
       '.dshGlmCompactRing.t2,.dshGlm.rail.t2{color:#0891b2}',
       '.dshGlmCompactRing.t3,.dshGlm.rail.t3{color:#b45309}',
       '.dshGlmCompactRing.t4,.dshGlm.rail.t4{color:var(--dsw-static-red-500)}',
+      '.dshGlmRailItem.t0 .dshGlmSvg{color:var(--dsw-static-green-400)}',
+      '.dshGlmRailItem.t1 .dshGlmSvg{color:var(--dsw-static-green-500)}',
+      '.dshGlmRailItem.t2 .dshGlmSvg{color:#0891b2}',
+      '.dshGlmRailItem.t3 .dshGlmSvg{color:#b45309}',
+      '.dshGlmRailItem.t4 .dshGlmSvg{color:var(--dsw-static-red-500)}',
       'body[data-ds-dark-theme] .dshGlmCompact,body[data-ds-dark-theme] .dshGlmPopover{box-shadow:0 4px 18px rgb(0 0 0 / 24%)}',
       'body[data-ds-dark-theme] .dshGlmMetric.t0,body[data-ds-dark-theme] .dshGlmCompactRing.t0,body[data-ds-dark-theme] .dshGlm.rail.t0{--dsh-glm-accent:#30d158;color:#30d158}',
       'body[data-ds-dark-theme] .dshGlmMetric.t1,body[data-ds-dark-theme] .dshGlmCompactRing.t1,body[data-ds-dark-theme] .dshGlm.rail.t1{--dsh-glm-accent:#32d74b;color:#32d74b}',
       'body[data-ds-dark-theme] .dshGlmMetric.t2,body[data-ds-dark-theme] .dshGlmCompactRing.t2,body[data-ds-dark-theme] .dshGlm.rail.t2{--dsh-glm-accent:#22d3ee;color:#22d3ee}',
       'body[data-ds-dark-theme] .dshGlmMetric.t3,body[data-ds-dark-theme] .dshGlmCompactRing.t3,body[data-ds-dark-theme] .dshGlm.rail.t3{--dsh-glm-accent:#ffb020;color:#ffb020}',
       'body[data-ds-dark-theme] .dshGlmMetric.t4,body[data-ds-dark-theme] .dshGlmCompactRing.t4,body[data-ds-dark-theme] .dshGlm.rail.t4{--dsh-glm-accent:#ff5d5d;color:#ff5d5d}',
+      'body[data-ds-dark-theme] .dshGlmRailItem.t0 .dshGlmSvg{color:#30d158}',
+      'body[data-ds-dark-theme] .dshGlmRailItem.t1 .dshGlmSvg{color:#32d74b}',
+      'body[data-ds-dark-theme] .dshGlmRailItem.t2 .dshGlmSvg{color:#22d3ee}',
+      'body[data-ds-dark-theme] .dshGlmRailItem.t3 .dshGlmSvg{color:#ffb020}',
+      'body[data-ds-dark-theme] .dshGlmRailItem.t4 .dshGlmSvg{color:#ff5d5d}',
       '@media (prefers-reduced-motion:reduce){.dshGlmPopover,.dshGlmRingFill,.dshGlmAction,.dshGlmChevron{transition:none;animation:none}.dshGlmRefreshIcon.spin{animation-duration:2s}}',
     ].join('')
     const cssTag = '@young1lin/dsh-glm-quota/styles.css'
@@ -171,6 +186,43 @@ window.__ModuleLoader__.load({
           : React.createElement('span', { className: 'dshGlmValue' }, Math.round(pct) + '%'))
     }
 
+    /** Display label for a rail item: friendly for the known ids, raw otherwise. */
+    function railLabel(w) {
+      if (w.id === '5h') return '5 小时窗口'
+      if (w.id === '7d') return '周额度'
+      return w.label
+    }
+
+    /**
+     * Narrow-rail quota item: tier-colored ring whose arc encodes the used
+     * share, reset countdown under it. Pure quota — no plan name, no MCP
+     * counts, no digits inside the ring (tooltip carries the exact percent).
+     */
+    function QuotaRailItem({ label, window: w, now, refresh, stale }) {
+      const pct = Math.max(0, Math.min(100, w.percent))
+      const tier = tierOf(pct)
+      const ringPct = pct <= 0 ? 4 : pct
+      const left = countdown(w.resetAt, now)
+      const title = label + ' ' + Math.round(pct) + '%'
+        + (left !== '' ? '，剩 ' + left + ' 刷新' : '')
+        + (w.resetAt > 0 ? '（' + absoluteTime(w.resetAt, now) + '）' : '')
+        + (stale ? '（获取失败，显示上次数据）' : '')
+      return React.createElement(Tooltip, { label: title, delayMs: 300 },
+        React.createElement('button', {
+          type: 'button', className: 'dshGlmRailItem ' + tier,
+          onClick: refresh, 'aria-label': title,
+        },
+          React.createElement('svg', {
+            className: 'dshGlmSvg', width: 30, height: 30, viewBox: '0 0 36 36', 'aria-hidden': true,
+          },
+            React.createElement('circle', { className: 'dshGlmRingTrack', cx: 18, cy: 18, r: 15.5 }),
+            React.createElement('circle', {
+              className: 'dshGlmRingFill', cx: 18, cy: 18, r: 15.5,
+              strokeDasharray: (RING_C * ringPct / 100) + ' ' + RING_C,
+            })),
+          left !== '' ? React.createElement('span', { className: 'dshGlmRailCd' }, left) : null))
+    }
+
     /**
      * The sidebar-foot quota panel. Props arrive as the slot's composed
      * shares: the owner's wide flag, the hooks-bound useQuota selector, and
@@ -236,7 +288,15 @@ window.__ModuleLoader__.load({
       const weekly = windows.find((w) => w.id === '7d')
       const mcp = windows.find((w) => w.id === 'mcp')
       const extras = windows.filter((w) => w.id !== '5h' && w.id !== '7d' && w.id !== 'mcp')
-      const worst = windows.reduce((acc, w) => Math.max(acc, w.percent), 0)
+      // Headline number = the worst TOKEN-quota window (5h, 7d, unknown
+      // token windows). MCP is a call-count cap, not token quota: a 95% MCP
+      // bar must not mask a nearly untouched 5h window. When two token
+      // windows disagree (7d 10% over 5h 5%) the closer-to-limit one leads —
+      // the headline reads "distance to the nearest token ceiling". MCP-only
+      // data falls back to MCP so the row never goes blank.
+      const quotaWindows = windows.filter((w) => w.id !== 'mcp')
+      const worstPool = quotaWindows.length > 0 ? quotaWindows : windows
+      const worst = worstPool.reduce((acc, w) => Math.max(acc, w.percent), 0)
       const worstTier = tierOf(worst)
       const summary = 'GLM' + (data.planLevel !== '' ? ' · ' + data.planLevel : '') + ' — '
         + windows.map((w) => (w.id === 'mcp' && w.used !== undefined && w.limit !== undefined
@@ -248,6 +308,19 @@ window.__ModuleLoader__.load({
       // dot at 0% is nearly invisible and the control reads as empty space.
       const ringPct = worst <= 0 ? 4 : Math.max(0, Math.min(100, worst))
       if (!wide) {
+        // Pure quota per window: the 5h ring (percent inside, reset countdown
+        // under it) and, when the plan has a weekly limit, the 7d ring below.
+        // No plan name, no MCP counts, no blended worst-window ring.
+        const railWindows = windows.filter((w) => w.id !== 'mcp')
+        if (railWindows.length > 0) {
+          return React.createElement('div', { className: 'dshGlmRail' },
+            railWindows.map((w) => React.createElement(QuotaRailItem, {
+              key: w.id, label: railLabel(w), window: w, now,
+              refresh, stale: snapshot.stale === true,
+            })))
+        }
+        // No quota windows at all (only MCP or nothing yet): keep the old
+        // single worst-window ring so the control never disappears.
         return React.createElement(Tooltip, { label: summary, delayMs: 300 },
           React.createElement('button', {
             type: 'button', className: 'dshGlm rail ' + worstTier,

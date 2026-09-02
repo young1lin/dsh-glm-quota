@@ -153,16 +153,54 @@ assert.ok(wide.includes('dshGlmGauge'), 'detail metrics use compact circular gau
 assert.ok(wide.includes('dshGlmCompactRing'), 'compact status row carries a worst-window ring')
 assert.ok(!wide.includes('dshGlmTrack'), 'the redesigned UI ships no linear progress tracks')
 
-// Rail form: worst-percent number with its tier color.
+// Compact headline = worst TOKEN window: MCP counts never dominate it.
+const mcpHeavy = { ...snap, data: { ...snap.data, windows: [
+  { id: '5h', label: '5h', percent: 1, resetAt: Date.now() + 60 * 60_000 },
+  { id: 'mcp', label: 'MCP', percent: 95, used: 950, limit: 1000, resetAt: 0 },
+] } }
+const wideMcpHeavy = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf(mcpHeavy), refresh: () => {},
+}))
+assert.ok(wideMcpHeavy.includes('dshGlmCompactValue">1%<'), 'headline stays on the token quota (1%), not the 95% MCP bar')
+assert.ok(wideMcpHeavy.includes('dshGlmCompactRing t0'), 'ring tier follows token windows')
+// Two token windows: the closer-to-limit one leads the headline.
+const weeklyHeavy = { ...snap, data: { ...snap.data, windows: [
+  { id: '5h', label: '5h', percent: 5, resetAt: Date.now() + 60 * 60_000 },
+  { id: '7d', label: '7d', percent: 10, resetAt: Date.now() + 5 * 24 * 3600_000 },
+] } }
+const wideWeeklyHeavy = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf(weeklyHeavy), refresh: () => {},
+}))
+assert.ok(wideWeeklyHeavy.includes('dshGlmCompactValue">10%<'), 'headline takes the closer-to-limit token window (7d 10% over 5h 5%)')
+// MCP-only data falls back to MCP so the headline never goes blank.
+const mcpOnly = { ...snap, data: { ...snap.data, windows: [
+  { id: 'mcp', label: 'MCP', percent: 95, used: 950, limit: 1000, resetAt: 0 },
+] } }
+const wideMcpOnly = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf(mcpOnly), refresh: () => {},
+}))
+assert.ok(wideMcpOnly.includes('dshGlmCompactValue">95%<'), 'mcp-only fallback: headline shows MCP when no token window exists')
+
+// Rail form: pure quota per window — the 5h ring and (on plans with a
+// weekly limit) the 7d ring, percent inside and reset countdown under; no
+// plan level, no MCP counts.
 const rail = renderToString(React.createElement(registration.component, {
   wide: false,
   useQuota: hookOf(snap),
   refresh: () => {},
 }))
-assert.ok(rail.includes('dshGlm'), 'rail block rendered')
-assert.ok(rail.includes('rail t2'), 'rail tier class: cyan at worst 42.5%')
-assert.ok(rail.includes('dshGlmRingFill'), 'rail renders the progress ring')
-assert.ok(/stroke-dasharray="[\d.]+ 97/.test(rail), 'ring arc encodes the worst percent: ' + (rail.match(/stroke-dasharray="[^"]+"/) ?? [])[0])
+assert.ok(rail.includes('class="dshGlmRail"'), 'rail stack rendered')
+assert.ok(rail.includes('dshGlmRailItem t2'), '5h rail ring tier: cyan at 42.5%')
+assert.ok(rail.includes('dshGlmRailItem t0'), '7d rail ring tier: bright green at 17.2%')
+assert.equal((rail.match(/dshGlmRingFill/g) ?? []).length, 2, 'rail renders exactly two quota rings (5h + 7d)')
+assert.ok(!rail.includes('dshGlmRailPct'), 'no percent digits beside the rings: the arc encodes the share')
+assert.ok(rail.includes('5 小时窗口 43%'), 'hover/aria tooltip carries the exact 5h percent')
+assert.ok(rail.includes('周额度 17%'), 'hover/aria tooltip carries the exact 7d percent')
+assert.ok(rail.includes('1h30m'), '5h reset countdown under the ring')
+assert.ok(rail.includes('3d0h'), '7d reset countdown under the ring')
+assert.ok(!rail.includes('MCP'), 'rail form carries no MCP data')
+assert.ok(!rail.includes('Pro'), 'rail form carries no plan level')
+assert.ok(/stroke-dasharray="41\.39\d* 97\.38\d*"/.test(rail), '5h ring arc encodes its percent: ' + (rail.match(/stroke-dasharray="[^"]+"/) ?? [])[0])
 
 // A plan without the weekly window renders no weekly row.
 const noWeekly = { ...snap, data: { ...snap.data, windows: snap.data.windows.filter((w) => w.id !== '7d') } }
@@ -173,6 +211,13 @@ const wideNoWeekly = renderToString(React.createElement(registration.component, 
 }))
 assert.ok(!wideNoWeekly.includes('周额度'), 'no weekly window: no weekly metric')
 assert.ok(!wideNoWeekly.includes('3d0h 后重置'), 'no weekly window: no weekly countdown')
+const railNoWeekly = renderToString(React.createElement(registration.component, {
+  wide: false,
+  useQuota: hookOf(noWeekly),
+  refresh: () => {},
+}))
+assert.equal((railNoWeekly.match(/dshGlmRingFill/g) ?? []).length, 1, 'no weekly window: rail shows only the 5h ring')
+assert.ok(!railNoWeekly.includes('3d0h'), 'no weekly window: no weekly countdown in rail')
 // Details stay in the DOM for accessibility, while CSS keeps the popover out of layout until opened.
 assert.ok(wideNoWeekly.includes('aria-expanded="false"'), 'compact trigger starts closed')
 assert.ok(wideNoWeekly.includes('dsh-glm-quota-details'), 'compact trigger controls the detail popover')
