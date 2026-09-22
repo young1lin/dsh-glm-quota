@@ -33,10 +33,18 @@ try {
 
 // --- minimal DOM stubs the factory and apply() touch ----------------------
 const styleTags = []
+const domListeners = new Map()
 const documentStub = {
   visibilityState: 'visible',
-  addEventListener() {},
-  removeEventListener() {},
+  addEventListener(type, fn) {
+    const set = domListeners.get(type) ?? new Set()
+    set.add(fn)
+    domListeners.set(type, set)
+  },
+  removeEventListener(type, fn) { domListeners.get(type)?.delete(fn) },
+  // Lets a test fire the background poll the refresh button has to contend
+  // with, which is the only way to reach the forced-refresh queue.
+  fire(type) { for (const fn of domListeners.get(type) ?? []) fn() },
   querySelector() { return null },
   createElement(tag) {
     return { tag, dataset: {}, textContent: '', style: {} }
@@ -126,6 +134,33 @@ await new Promise((r) => { setTimeout(r, 10) })
 assert.ok(fetchCalls.some((u) => u.includes('refresh=1')), 'refresh=1 fetch fired')
 off()
 
+// A forced refresh must never resolve on a plain poll already in flight:
+// that request carries no ?refresh=1, so the host is free to answer it from
+// its throttle cache while the spinner settles and reports success.
+let releaseGate = () => {}
+let gated = true
+fetchCalls = []
+globalThis.fetch = async (url) => {
+  fetchCalls.push(String(url))
+  if (gated) await new Promise((r) => { releaseGate = r })
+  return { ok: true, json: async () => served }
+}
+documentStub.fire('visibilitychange')
+await new Promise((r) => { setTimeout(r, 0) })
+assert.deepEqual(fetchCalls, ['/glm-quota/state'], 'a plain background poll is in flight')
+const forced = face.refresh()
+await new Promise((r) => { setTimeout(r, 0) })
+assert.equal(fetchCalls.length, 1, 'the forced refresh waits instead of resolving on the plain poll')
+gated = false
+releaseGate()
+await forced
+assert.equal(fetchCalls.length, 2, 'the queued refresh ran once the plain poll settled')
+assert.ok(fetchCalls[1].includes('refresh=1'), 'the queued refresh really forced the endpoint')
+globalThis.fetch = async (url) => {
+  fetchCalls.push(String(url))
+  return { ok: true, json: async () => served }
+}
+
 // --- SSR render: wide card shows quota metrics, weekly data, MCP counts, and resets.
 const hookOf = (snap_) => (sel) => sel(snap_)
 const wide = renderToString(React.createElement(registration.component, {
@@ -135,6 +170,7 @@ const wide = renderToString(React.createElement(registration.component, {
 }))
 assert.ok(wide.includes('GLM'), 'plan title rendered')
 assert.ok(wide.includes('Pro'), 'plan level rendered')
+assert.ok(wide.includes('Coding Plan · Pro 额度'), 'the popover title names the plan tier, not a constant')
 assert.ok(wide.includes('周额度'), 'weekly metric rendered only when the 7d window exists')
 assert.ok(wide.includes('MCP 调用'), 'mcp metric rendered')
 assert.ok(wide.includes('12'), 'mcp used count rendered')
@@ -143,7 +179,7 @@ assert.ok(wide.includes('43%'), '5h percent rendered')
 assert.ok(wide.includes('17%'), 'weekly percent rendered')
 // Each metric owns its countdown; the weekly reset can never hide behind the 5h reset.
 assert.ok(wide.includes('1h30m 后重置'), '5h metric shows its reset countdown')
-assert.ok(wide.includes('3d0h 后重置'), 'weekly metric shows its reset countdown')
+assert.ok(wide.includes('3d 后重置'), 'weekly metric shows its reset countdown, zero trailing unit dropped')
 assert.ok(wide.includes('重置于'), 'metric tooltip carries the absolute reset time')
 assert.ok(wide.includes('dshGlmMetric t2'), '5h tier class: cyan at 42.5%')
 assert.ok(wide.includes('dshGlmMetric t0'), 'weekly tier class: bright green at 17.2%')
@@ -155,6 +191,12 @@ assert.ok(wide.includes('dshGlmRing t2 dshGlmGauge'), 'detail ring carries the 5
 assert.ok(styleTags[0].textContent.includes('inset 0 2px 3px'), 'recessed track is part of the shared ring style')
 assert.ok(styleTags[0].textContent.includes('body[data-ds-dark-theme] .dshGlmRing:before'), 'inner bevel has a dark theme treatment')
 assert.ok(!wide.includes('dshGlmTrack'), 'the redesigned UI ships no linear progress tracks')
+assert.ok(styleTags[0].textContent.includes('--dsh-glm-track'), 'the unused share has its own track token')
+assert.ok(!styleTags[0].textContent.includes('var(--dsw-alias-border-l2) 0)'), 'the groove no longer paints with the hairline border token')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRailCd.mid{font-size:10.5px}'), 'the center label has a middle size step')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRing.dshGlmGauge:before'), 'the gauge inner disc wins on specificity, not source order')
+assert.ok(wide.includes('role="group"') && !wide.includes('role="dialog"'), 'details are a labelled disclosure, not a dialog focus never reaches')
+assert.ok(!wide.includes('40% 已用'), 'the MCP row does not print its percent a third time')
 
 // Compact headline = worst TOKEN window: MCP counts never dominate it.
 const mcpHeavy = { ...snap, data: { ...snap.data, windows: [
@@ -184,6 +226,11 @@ const wideMcpOnly = renderToString(React.createElement(registration.component, {
   wide: true, useQuota: hookOf(mcpOnly), refresh: () => {},
 }))
 assert.ok(wideMcpOnly.includes('dshGlmCompactValue">95%<'), 'mcp-only fallback: headline shows MCP when no token window exists')
+const noPlan = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf({ ...snap, data: { ...snap.data, planLevel: '' } }), refresh: () => {},
+}))
+assert.ok(noPlan.includes('>Coding Plan 额度<'), 'an unknown plan tier falls back to the bare product name')
+assert.ok(!noPlan.includes('Coding Plan · '), 'no dangling separator when the tier is empty')
 const railMcpOnly = renderToString(React.createElement(registration.component, {
   wide: false, useQuota: hookOf(mcpOnly), refresh: () => {},
 }))
@@ -205,9 +252,9 @@ assert.equal((rail.match(/class="dshGlmRing t\d"/g) ?? []).length, 2, 'rail rend
 assert.ok(!rail.includes('dshGlmValue') && !rail.includes('dshGlmCompactValue'), 'no percent digits beside the rings: the arc encodes the share')
 assert.ok(rail.includes('--dsh-glm-pct:42.5%') && rail.includes('--dsh-glm-pct:17.2%'), 'each ring encodes its own used share')
 assert.ok(rail.includes('5 小时窗口 43%，剩 1h30m 重置'), 'hover/aria tooltip: exact 5h percent + reset wording')
-assert.ok(rail.includes('周额度 17%，剩 3d0h 重置'), 'hover/aria tooltip: exact 7d percent + reset wording')
+assert.ok(rail.includes('周额度 17%，剩 3d 重置'), 'hover/aria tooltip: exact 7d percent + reset wording')
 assert.ok(rail.includes('class="dshGlmRailCd long" aria-hidden="true">1h30m<'), 'the 5h countdown sits inside the ring')
-assert.ok(rail.includes('class="dshGlmRailCd long" aria-hidden="true">3d0h<'), 'the weekly countdown sits inside its ring')
+assert.ok(rail.includes('class="dshGlmRailCd" aria-hidden="true">3d<'), 'the weekly countdown sits inside its ring, at full size once the 0h is gone')
 assert.ok(rail.indexOf('5 小时窗口') < rail.indexOf('周额度'), '5h ring renders above the 7d ring')
 assert.ok(!rail.includes('MCP'), 'rail form carries no MCP data')
 assert.ok(!rail.includes('Pro'), 'rail form carries no plan level')
@@ -218,6 +265,41 @@ const zeroUsed = renderToString(React.createElement(registration.component, {
   ] } }), refresh: () => {},
 }))
 assert.ok(zeroUsed.includes('--dsh-glm-pct:0%'), '0% usage has no false colored segment')
+// ...but a non-zero share must be visible: a 1% arc is 3.6 degrees, which
+// disappears on the groove and reads as a broken empty ring.
+const oneUsed = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 1, resetAt: Date.now() + 90_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(oneUsed.includes('--dsh-glm-pct:4%'), '1% usage gets the minimum visible arc')
+assert.ok(oneUsed.includes('dshGlmValue">1%<'), 'the minimum arc never rewrites the printed percent')
+
+// Unit boundary: rounding happens before the unit is chosen, so 999,999
+// reads as 1M instead of the four-digit 1000k.
+const bigCount = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: 'mcp', label: 'MCP', percent: 100, used: 999999, limit: 1000000, resetAt: 0 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(!bigCount.includes('1000k'), 'compact counts never render a four-digit unit')
+assert.ok(bigCount.includes('1M'), '999,999 reads as 1M')
+
+// Center-label type ramp: dropping the zero unit keeps 1h0m -> 1h -> 59m all
+// at full size, so the number no longer jumps every hour; a genuinely longer
+// countdown steps down once rather than straight to the smallest size.
+const flatHour = renderToString(React.createElement(registration.component, {
+  wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 29, resetAt: Date.now() + 3600_000 + 5_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(flatHour.includes('class="dshGlmRailCd" aria-hidden="true">1h<'), '1h0m renders as 1h at full size')
+const midHour = renderToString(React.createElement(registration.component, {
+  wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 29, resetAt: Date.now() + 65 * 60_000 + 5_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(midHour.includes('class="dshGlmRailCd mid" aria-hidden="true">1h5m<'), '4-char countdown takes the middle step, not the smallest')
 
 // At the minute boundary the rail and expanded detail change to exact seconds.
 const finalMinute = renderToString(React.createElement(registration.component, {
@@ -245,6 +327,13 @@ const expired = renderToString(React.createElement(registration.component, {
   ] } }), refresh: () => {},
 }))
 assert.ok(expired.includes('>0s<') && expired.includes('即将重置'), 'expired timestamp waits for fresh projection')
+const wideExpired = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 29, resetAt: Date.now() - 1_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(!wideExpired.includes('即将刷新 后重置'), 'an elapsed reset never concatenates into broken copy')
+assert.ok(wideExpired.includes('>即将刷新<'), 'an elapsed reset reads as a line of its own')
 
 // Unknown TOKEN windows join the rail in host order; unknown NON-token
 // windows never reach the rail or the headline.
@@ -288,14 +377,14 @@ const wideNoWeekly = renderToString(React.createElement(registration.component, 
   refresh: () => {},
 }))
 assert.ok(!wideNoWeekly.includes('周额度'), 'no weekly window: no weekly metric')
-assert.ok(!wideNoWeekly.includes('3d0h 后重置'), 'no weekly window: no weekly countdown')
+assert.ok(!wideNoWeekly.includes('3d 后重置'), 'no weekly window: no weekly countdown')
 const railNoWeekly = renderToString(React.createElement(registration.component, {
   wide: false,
   useQuota: hookOf(noWeekly),
   refresh: () => {},
 }))
 assert.equal((railNoWeekly.match(/class="dshGlmRing t\d"/g) ?? []).length, 1, 'no weekly window: rail shows only the 5h ring')
-assert.ok(!railNoWeekly.includes('3d0h'), 'no weekly window: no weekly countdown in rail')
+assert.ok(!railNoWeekly.includes('>3d<'), 'no weekly window: no weekly countdown in rail')
 // Details stay in the DOM for accessibility, while CSS keeps the popover out of layout until opened.
 assert.ok(wideNoWeekly.includes('aria-expanded="false"'), 'compact trigger starts closed')
 assert.ok(wideNoWeekly.includes('dsh-glm-quota-details'), 'compact trigger controls the detail popover')

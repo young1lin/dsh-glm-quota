@@ -6,6 +6,12 @@
 
 ## 界面预览
 
+**可交互演示：[docs/preview.html](docs/preview.html)** —— 用浏览器直接打开即可。该页由 `npm run preview`
+生成，内嵌真实的插件 CSS 与真实组件的 SSR 渲染，并叠加宿主的全局 `corner-shape:superellipse(1.5)`，
+覆盖详情浮层、五档状态胶囊、收起栏各档倒计时，右上角可切换明暗主题。页内 DSW 令牌值为近似值，
+仅用于让颜色在裸页面上解析；真实配色以宿主主题为准（`corner-shape` 需 Chrome 139+）。
+改动 `client.js` 后请重新生成，否则演示页会与实现脱节。
+
 以下截图记录改版前布局。新版收起态将倒计时放入圆环中心，展开态的小环也采用统一的凹槽层次；行为约束见 [quota-ring-spec.md](docs/quota-ring-spec.md)。
 
 侧栏展开 —— 常驻 42px 状态胶囊（`GLM · 套餐名` + 汇总百分比 + 微型圆环），点击弹出详情浮层：
@@ -448,7 +454,11 @@ provider 的会话"且"credential 可解析"都成立才为 true。不成立时�
 node smoke.mjs         # host 半场：窗口映射/provider 门控/事件合并/定时器兜底/
                        #   turn-end 吞掉/跨实例文件节流/空闲零请求/429 退避/状态文件
 node client-smoke.mjs  # client 半场：handoff 格式/插槽注册/hooks 绑定/轮询/SSR 渲染断言
+npm run preview        # 重新生成 docs/preview.html（改完 client.js 跑一次）
 ```
+
+`preview.mjs` 与 `docs/preview.html` 只用于仓库内演示，不随 npm 包发布——
+`package.json` 的 `files` 是白名单，两者都不在其中。
 
 改代码：config 值热生效；`client.js` 保存即推送（至多 F5）；`host.js` 重启 `dsh web`
 并 bump `MODULE_REV`。

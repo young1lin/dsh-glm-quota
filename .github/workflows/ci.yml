@@ -44,10 +44,12 @@ jobs:
       # The shipped sources are hand-written; guard against any contributor
       # path or machine name landing in them (files ships only host.js /
       # client.js / docs, but this check is cheap and permanent).
+      # *.html is included because docs/preview.html is a GENERATED artifact
+      # that is committed — exactly the kind of file a local path leaks into.
       - name: Scan sources for machine paths
         shell: bash
         run: |
-          if grep -rInE --include='*.js' --include='*.mjs' '/home/runner|/Users/[A-Za-z]|/root/|[A-Za-z]:\\Users' . --exclude-dir=node_modules; then
+          if grep -rInE --include='*.js' --include='*.mjs' --include='*.html' '/home/runner|/Users/[A-Za-z]|/root/|[A-Za-z]:\\Users' . --exclude-dir=node_modules; then
             echo "::error::machine path leaked into sources (matches above)"
             exit 1
           fi

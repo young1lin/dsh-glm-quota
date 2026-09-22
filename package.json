@@ -31,7 +31,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "node smoke.mjs && node client-smoke.mjs"
+    "test": "node smoke.mjs && node client-smoke.mjs",
+    "preview": "node preview.mjs"
   },
   "dsh": {
     "bundle": {

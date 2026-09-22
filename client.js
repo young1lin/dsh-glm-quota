@@ -25,7 +25,7 @@ window.__ModuleLoader__.load({
     const css = [
       '.dshGlm{position:relative;width:100%;box-sizing:border-box;margin:4px 0 7px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}',
       '.dshGlmOpen{z-index:40}',
-      '.dshGlmCompact{box-sizing:border-box;width:100%;height:42px;display:flex;align-items:center;gap:7px;padding:0 10px 0 14px;border:1px solid var(--dsw-alias-border-l1);border-radius:14px;background:var(--dsw-alias-bg-layer-1);box-shadow:0 1px 2px rgb(0 0 0 / 3%);color:var(--dsw-alias-label-secondary);cursor:pointer;text-align:left;transition:background .15s,border-color .15s}',
+      '.dshGlmCompact{box-sizing:border-box;width:100%;height:42px;display:flex;align-items:center;gap:7px;padding:0 10px 0 14px;border:1px solid var(--dsw-alias-border-l1);border-radius:21px;background:var(--dsw-alias-bg-layer-1);box-shadow:0 1px 2px rgb(0 0 0 / 3%);color:var(--dsw-alias-label-secondary);cursor:pointer;text-align:left;transition:background .15s,border-color .15s}',
       '.dshGlmCompact:hover{background:var(--dsw-alias-button-floating-hover);border-color:var(--dsw-alias-border-l2)}',
       '.dshGlmCompact:focus-visible,.dshGlmAction:focus-visible,.dshGlm.rail:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:1px}',
       '.dshGlmBrand{display:flex;align-items:baseline;gap:6px;min-width:0;flex:1}',
@@ -33,7 +33,6 @@ window.__ModuleLoader__.load({
       '.dshGlmPlan{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-tertiary);font-size:11px;line-height:16px;font-weight:500}',
       '.dshGlmPlan:before{content:"·";margin-right:6px;color:var(--dsw-alias-label-dimmed)}',
       '.dshGlmCompactValue{flex:none;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;font-weight:600;font-variant-numeric:tabular-nums}',
-      '.dshGlmCompactRing{flex:none;width:22px;height:22px;--dsh-glm-groove:3px}',
       '.dshGlmChevron{flex:none;display:inline-flex;color:var(--dsw-alias-label-tertiary);transition:transform .2s ease}',
       '.dshGlmOpen .dshGlmChevron{transform:rotate(180deg)}',
       '.dshGlmPopover{display:none;position:absolute;left:0;right:0;bottom:calc(100% + 8px);box-sizing:border-box;max-height:min(360px,calc(100vh - 120px));overflow-y:auto;padding:10px 12px 8px;border:1px solid var(--dsw-alias-border-l1);border-radius:16px;background:var(--dsw-specific-menu);box-shadow:var(--dsw-shadow-lv3)}',
@@ -41,7 +40,7 @@ window.__ModuleLoader__.load({
       '@keyframes dshGlmPopoverIn{from{opacity:0;transform:translateY(4px)}}',
       '.dshGlmPopoverHead{display:flex;align-items:center;gap:6px;min-height:26px;padding:0 0 5px 3px}',
       '.dshGlmPopoverTitle{flex:1;min-width:0;color:var(--dsw-alias-label-primary);font-size:12px;line-height:18px;font-weight:600}',
-      '.dshGlmAction{flex:none;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:none;border-radius:8px;background:transparent;color:var(--dsw-alias-label-tertiary);cursor:pointer;transition:background .15s,color .15s}',
+      '.dshGlmAction{flex:none;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:none;border-radius:50%;background:transparent;color:var(--dsw-alias-label-tertiary);cursor:pointer;transition:background .15s,color .15s}',
       '.dshGlmAction:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary)}',
       '.dshGlmRefreshIcon{display:inline-flex;transform-origin:50% 50%}',
       '.dshGlmRefreshIcon.spin{animation:dshGlmSpin .8s linear infinite}',
@@ -49,7 +48,6 @@ window.__ModuleLoader__.load({
       '.dshGlmMetrics{display:flex;flex-direction:column}',
       '.dshGlmMetric{box-sizing:border-box;min-width:0;display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 3px}',
       '.dshGlmMetric+.dshGlmMetric{border-top:1px solid var(--dsw-alias-border-l1)}',
-      '.dshGlmGauge{width:28px;height:28px;--dsh-glm-groove:4px}',
       '.dshGlmMetricCopy{min-width:0}',
       '.dshGlmLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;font-weight:550}',
       '.dshGlmMeta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-tertiary);font-size:10px;line-height:14px;font-variant-numeric:tabular-nums}',
@@ -65,10 +63,35 @@ window.__ModuleLoader__.load({
       '.dshGlmRailItem{box-sizing:border-box;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:1px;border:none;border-radius:50%;background:transparent;cursor:pointer;transition:background .15s;user-select:none}',
       '.dshGlmRailItem:hover{background:var(--dsw-alias-interactive-bg-hover)}',
       '.dshGlmRailItem:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:1px}',
-      '.dshGlmRing{--dsh-glm-accent:var(--dsw-static-green-400);--dsh-glm-groove:5px;position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;border-radius:50%;background:conic-gradient(from -90deg,var(--dsh-glm-accent) var(--dsh-glm-pct),var(--dsw-alias-border-l2) 0);box-shadow:inset 0 2px 3px rgb(0 0 0 / 18%),inset 0 -1px 1px rgb(255 255 255 / 75%),0 1px 1px rgb(255 255 255 / 70%)}',
+      // --dsh-glm-track paints the unused share. --dsw-alias-border-l2 is a
+      // hairline token: at ring scale it reads as a thin stroke rather than a
+      // gauge track, which is why a lightly used ring looked empty or broken.
+      // Deepen it with the tertiary label color so it still follows the theme.
+      '.dshGlmRing{--dsh-glm-accent:var(--dsw-static-green-400);--dsh-glm-track:color-mix(in srgb,var(--dsw-alias-label-tertiary) 30%,var(--dsw-alias-border-l2));--dsh-glm-groove:5px;position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;border-radius:50%;background:conic-gradient(from -90deg,var(--dsh-glm-accent) var(--dsh-glm-pct),var(--dsh-glm-track) 0);box-shadow:inset 0 2px 3px rgb(0 0 0 / 18%),inset 0 -1px 1px rgb(255 255 255 / 75%),0 1px 1px rgb(255 255 255 / 70%)}',
       '.dshGlmRing:before{content:"";position:absolute;inset:var(--dsh-glm-groove);border-radius:50%;background:var(--dsw-alias-bg-layer-1);box-shadow:0 0 0 1px rgb(255 255 255 / 70%),0 2px 3px rgb(0 0 0 / 18%),inset 0 1px 1px rgb(255 255 255 / 65%)}',
-      '.dshGlmGauge:before{background:var(--dsw-specific-menu)}',
+      '.dshGlmRing.dshGlmGauge:before{background:var(--dsw-specific-menu)}',
+      // The host theme smooths every corner app-wide via
+      // `*,:before,:after{corner-shape:superellipse(1.5)}`. On any
+      // border-radius:50% box those four superellipse arcs bulge outward
+      // instead of closing into a circle, so the quota rings render as
+      // squircles. Re-own the corner geometry of everything this plugin
+      // draws as a circle or a full-round capsule (a class selector
+      // outranks the universal rule); low-radius surfaces like the
+      // popover keep the host's continuous corners.
+      '.dshGlmRing,.dshGlmRing:before,.dshGlmWarn,.dshGlmAction,.dshGlm.rail,.dshGlmRailItem,.dshGlmCompact{corner-shape:round}',
+      // Ring size variants: the base .dshGlmRing rule above paints the
+      // 46px rail ring. These modifiers used to sit BEFORE it at equal
+      // specificity, so the later 46px base won and every ring rendered
+      // rail-sized — overflowing the 42px capsule and covering detail
+      // labels. Doubling the class keeps the override order-independent.
+      // Material scales with the control. The three-layer groove reads as a
+      // bevel at 46px, but at 22px those highlights only blur the edge into
+      // grey haze, so the smallest ring keeps one inset shadow and a hairline.
+      '.dshGlmRing.dshGlmCompactRing{width:22px;height:22px;--dsh-glm-groove:3px;box-shadow:inset 0 1px 2px rgb(0 0 0 / 15%)}',
+      '.dshGlmRing.dshGlmCompactRing:before{box-shadow:0 0 0 1px rgb(255 255 255 / 55%)}',
+      '.dshGlmRing.dshGlmGauge{width:28px;height:28px;--dsh-glm-groove:4px}',
       '.dshGlmRailCd{position:relative;z-index:1;color:var(--dsw-alias-label-primary);font-size:12px;line-height:1;font-weight:650;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap}',
+      '.dshGlmRailCd.mid{font-size:10.5px}',
       '.dshGlmRailCd.long{font-size:9px}',
       '.dshGlmRing.t0{--dsh-glm-accent:var(--dsw-static-green-400)}',
       '.dshGlmRing.t1{--dsh-glm-accent:var(--dsw-static-green-500)}',
@@ -78,6 +101,9 @@ window.__ModuleLoader__.load({
       'body[data-ds-dark-theme] .dshGlmCompact,body[data-ds-dark-theme] .dshGlmPopover{box-shadow:0 4px 18px rgb(0 0 0 / 24%)}',
       'body[data-ds-dark-theme] .dshGlmRing{box-shadow:inset 0 2px 3px rgb(0 0 0 / 55%),inset 0 -1px 1px rgb(255 255 255 / 12%),0 1px 1px rgb(255 255 255 / 8%)}',
       'body[data-ds-dark-theme] .dshGlmRing:before{box-shadow:0 0 0 1px rgb(255 255 255 / 10%),0 2px 3px rgb(0 0 0 / 55%),inset 0 1px 1px rgb(255 255 255 / 10%)}',
+      'body[data-ds-dark-theme] .dshGlmRing{--dsh-glm-track:color-mix(in srgb,var(--dsw-alias-label-tertiary) 38%,var(--dsw-alias-border-l2))}',
+      'body[data-ds-dark-theme] .dshGlmRing.dshGlmCompactRing{box-shadow:inset 0 1px 2px rgb(0 0 0 / 50%)}',
+      'body[data-ds-dark-theme] .dshGlmRing.dshGlmCompactRing:before{box-shadow:0 0 0 1px rgb(255 255 255 / 9%)}',
       'body[data-ds-dark-theme] .dshGlmRing.t0{--dsh-glm-accent:#30d158}',
       'body[data-ds-dark-theme] .dshGlmRing.t1{--dsh-glm-accent:#32d74b}',
       'body[data-ds-dark-theme] .dshGlmRing.t2{--dsh-glm-accent:#22d3ee}',
@@ -86,13 +112,18 @@ window.__ModuleLoader__.load({
       '@media (prefers-reduced-motion:reduce){.dshGlmPopover,.dshGlmAction,.dshGlmChevron,.dshGlmRailItem,.dshGlm.rail{transition:none;animation:none}.dshGlmRefreshIcon.spin{animation-duration:2s}}',
     ].join('')
     const cssTag = '@young1lin/dsh-glm-quota/styles.css'
-    if (typeof document !== 'undefined'
-      && document.querySelector('style[data-plugin-css=' + JSON.stringify(cssTag) + ']') === null) {
-      const tag = document.createElement('style')
-      tag.dataset.plugin = '@young1lin/dsh-glm-quota'
-      tag.dataset.pluginCss = cssTag
-      tag.textContent = css
-      document.head.appendChild(tag)
+    if (typeof document !== 'undefined' && document.head !== undefined && document.head !== null) {
+      // HMR re-executes this factory in place. Create the tag once, then
+      // always sync its text: a rebuilt bundle must never keep stale styles
+      // (a create-once guard leaves new DOM rendering with old CSS).
+      let tag = document.querySelector('style[data-plugin-css=' + JSON.stringify(cssTag) + ']')
+      if (tag === null) {
+        tag = document.createElement('style')
+        tag.dataset.plugin = '@young1lin/dsh-glm-quota'
+        tag.dataset.pluginCss = cssTag
+        document.head.appendChild(tag)
+      }
+      if (tag.textContent !== css) tag.textContent = css
     }
 
     /** Usage tier class t0..t4 (bright green, green, cyan, yellow, red). */
@@ -104,18 +135,33 @@ window.__ModuleLoader__.load({
       return 't0'
     }
 
-    /** Compact countdown: seconds under one minute, then minutes/hours/days. */
-    function countdown(resetAt, now) {
-      if (resetAt === undefined || resetAt <= 0) return ''
+    /**
+     * Compact countdown to a reset, returned as data rather than a display
+     * string: seconds under one minute, then minutes/hours/days. "known"
+     * false means the host reported no reset time; "expired" means the stamp
+     * passed and the next projection has not landed yet.
+     *
+     * Callers must branch on these flags, never on "text" — keying render
+     * logic off a Chinese literal breaks silently the moment the copy moves.
+     *
+     * A zero trailing unit is dropped ("1d", not "1d0h"): it carries no
+     * information, and the extra characters pushed short countdowns into the
+     * shrunken center-label font for nothing.
+     */
+    function countdownOf(resetAt, now) {
+      if (resetAt === undefined || resetAt <= 0) return { known: false, expired: false, text: '' }
       const diff = resetAt - now
-      if (diff <= 0) return '即将刷新'
+      if (diff <= 0) return { known: true, expired: true, text: '0s' }
       const totalSec = Math.ceil(diff / 1000)
-      if (totalSec < 60) return totalSec + 's'
+      const live = (text) => ({ known: true, expired: false, text })
+      if (totalSec < 60) return live(totalSec + 's')
       const hours = Math.floor(totalSec / 3600)
       const mins = Math.floor(totalSec / 60) % 60
-      if (hours >= 24) return Math.floor(hours / 24) + 'd' + (hours % 24) + 'h'
-      if (hours >= 1) return hours + 'h' + mins + 'm'
-      return mins + 'm'
+      const pair = (big, bigUnit, small, smallUnit) =>
+        big + bigUnit + (small > 0 ? small + smallUnit : '')
+      if (hours >= 24) return live(pair(Math.floor(hours / 24), 'd', hours % 24, 'h'))
+      if (hours >= 1) return live(pair(hours, 'h', mins, 'm'))
+      return live(mins + 'm')
     }
 
     /** Absolute local time: HH:mm today, else M/d HH:mm. */
@@ -126,30 +172,51 @@ window.__ModuleLoader__.load({
       return sameDay ? hm : (when.getMonth() + 1) + '/' + when.getDate() + ' ' + hm
     }
 
-    /** Compact count: 517 / 4k / 1.2M. */
+    /**
+     * Compact count: 517 / 4k / 1.2M. Rounds to one decimal BEFORE choosing
+     * the unit; picking the unit first rendered 999,999 as "1000k".
+     */
     function compactCount(n) {
-      const abs = Math.abs(n)
-      if (abs < 1000) return String(n)
-      if (abs < 1000000) return (n % 1000 === 0 ? n / 1000 : Math.round(n / 100) / 10) + 'k'
-      return (n % 1000000 === 0 ? n / 1000000 : Math.round(n / 100000) / 10) + 'M'
+      if (Math.abs(n) < 1000) return String(n)
+      const thousands = Math.round(n / 100) / 10
+      if (Math.abs(thousands) < 1000) return thousands + 'k'
+      return Math.round(n / 100000) / 10 + 'M'
+    }
+
+    /**
+     * Center-label size step. One extra character must not halve the type:
+     * the old 3-or-fewer/otherwise split made the countdown grow when it
+     * ticked from 1h0m to 59m, so the number visibly jumped every hour.
+     */
+    function countdownSize(text) {
+      if (text.length >= 5) return ' long'
+      if (text.length === 4) return ' mid'
+      return ''
     }
 
     /** One recessed ring style, scaled for the rail, detail, and trigger. */
     function QuotaRing({ percent, tier, className, label, countdownText }) {
       const pct = Math.max(0, Math.min(100, percent))
-      const displayTime = countdownText === '即将刷新' ? '0s' : countdownText
+      // A 1% share is a 3.6 degree arc — invisible on a 3-5px groove, so a
+      // barely touched window rendered as a dead empty circle. Give any
+      // non-zero share a floor of 4% of the circumference (~2px of arc).
+      // A true 0% still draws nothing: the spec forbids a false starting
+      // segment, and the exact figure stays in the digits and the accessible
+      // name either way.
+      const arc = pct > 0 ? Math.max(pct, 4) : 0
+      const text = countdownText === undefined ? '' : countdownText
       return React.createElement('span', {
         className: 'dshGlmRing ' + tier + (className ? ' ' + className : ''),
-        style: { '--dsh-glm-pct': pct + '%' },
+        style: { '--dsh-glm-pct': arc + '%' },
         role: label ? 'img' : undefined,
         'aria-label': label,
         'aria-hidden': label ? undefined : true,
-      }, displayTime
-        ? React.createElement('span', {
-          className: 'dshGlmRailCd' + (displayTime.length > 3 ? ' long' : ''),
+      }, text === ''
+        ? null
+        : React.createElement('span', {
+          className: 'dshGlmRailCd' + countdownSize(text),
           'aria-hidden': true,
-        }, displayTime)
-        : null)
+        }, text))
     }
 
     /** One quota metric: a quiet circular gauge plus label, reset, and exact value. */
@@ -157,14 +224,19 @@ window.__ModuleLoader__.load({
       const pct = Math.max(0, Math.min(100, pctOf(w)))
       const tier = tierOf(pct)
       const isCount = w.id === 'mcp' && w.used !== undefined && w.limit !== undefined
+      const cd = countdownOf(w.resetAt, now)
       const titleBits = [label + '已用 ' + Math.round(pct) + '%']
       if (isCount) titleBits.unshift('已用 ' + compactCount(w.used) + ' / ' + compactCount(w.limit) + ' 次')
-      if (w.resetAt > 0) {
-        titleBits.push('重置于 ' + absoluteTime(w.resetAt, now) + '（剩 ' + countdown(w.resetAt, now) + '）')
+      if (cd.known) {
+        titleBits.push('重置于 ' + absoluteTime(w.resetAt, now)
+          + (cd.expired ? '（即将刷新）' : '（剩 ' + cd.text + '）'))
       }
-      const meta = (isCount ? Math.round(pct) + '% 已用' : '')
-        + (isCount && w.resetAt > 0 ? ' · ' : '')
-        + (w.resetAt > 0 ? countdown(w.resetAt, now) + ' 后重置' : '')
+      // The ring encodes the used share and the right-hand column carries the
+      // exact figure, so the meta line no longer repeats the percentage — on
+      // the MCP row that was the same number a third time. Expired reads as a
+      // sentence of its own: the old concatenation produced the nonsense
+      // "即将刷新 后重置".
+      const meta = !cd.known ? '' : cd.expired ? '即将刷新' : cd.text + ' 后重置'
       return React.createElement('div', {
         className: 'dshGlmMetric ' + tier,
         title: titleBits.join(' · '),
@@ -207,17 +279,17 @@ window.__ModuleLoader__.load({
     function QuotaRailItem({ label, window: w, now, refresh, stale }) {
       const pct = Math.max(0, Math.min(100, pctOf(w)))
       const tier = tierOf(pct)
-      const left = countdown(w.resetAt, now)
+      const cd = countdownOf(w.resetAt, now)
       const title = label + ' ' + Math.round(pct) + '%'
-        + (left === '即将刷新' ? '，即将重置' : left !== '' ? '，剩 ' + left + ' 重置' : '')
-        + (w.resetAt > 0 ? '（' + absoluteTime(w.resetAt, now) + '）' : '')
+        + (!cd.known ? '' : cd.expired ? '，即将重置' : '，剩 ' + cd.text + ' 重置')
+        + (cd.known ? '（' + absoluteTime(w.resetAt, now) + '）' : '')
         + (stale ? '（获取失败，显示上次数据）' : '')
       return React.createElement(Tooltip, { label: title, delayMs: 300 },
         React.createElement('button', {
           type: 'button', className: 'dshGlmRailItem ' + tier,
           onClick: refresh, 'aria-label': title,
         },
-          React.createElement(QuotaRing, { percent: pct, tier, countdownText: left })))
+          React.createElement(QuotaRing, { percent: pct, tier, countdownText: cd.text })))
     }
 
     /**
@@ -300,7 +372,7 @@ window.__ModuleLoader__.load({
       const summary = 'GLM' + (data.planLevel !== '' ? ' · ' + data.planLevel : '') + ' — '
         + windows.map((w) => (w.id === 'mcp' && w.used !== undefined && w.limit !== undefined
           ? 'MCP ' + compactCount(w.used) + '/' + compactCount(w.limit)
-          : w.label + ' ' + Math.round(w.percent) + '%')).join(' · ')
+          : w.label + ' ' + Math.round(pctOf(w)) + '%')).join(' · ')
         + (snapshot.stale === true ? '（获取失败，显示上次数据）' : '')
 
       if (!wide) {
@@ -353,11 +425,20 @@ window.__ModuleLoader__.load({
         React.createElement('div', {
           id: 'dsh-glm-quota-details',
           className: 'dshGlmPopover',
-          role: 'dialog',
+          // Not role="dialog": this disclosure never receives focus and traps
+          // none, and announcing a dialog that focus never reaches strands
+          // screen-reader users inside it. The trigger's aria-expanded and
+          // aria-controls already carry the relationship; "group" keeps the
+          // element labelable.
+          role: 'group',
           'aria-label': 'GLM 额度详情',
         },
           React.createElement('div', { className: 'dshGlmPopoverHead' },
-            React.createElement('span', { className: 'dshGlmPopoverTitle' }, 'Coding Plan 额度'),
+            // The plan tier is data the host already projects (planLevel, from
+            // the upstream data.level). A constant title threw it away and left
+            // the popover unable to say which plan these numbers belong to.
+            React.createElement('span', { className: 'dshGlmPopoverTitle' },
+              'Coding Plan' + (data.planLevel !== '' ? ' · ' + data.planLevel : '') + ' 额度'),
             snapshot.stale === true
               ? React.createElement('span', {
                 className: 'dshGlmWarn', title: '额度获取失败，正在显示上次成功数据',
@@ -404,6 +485,10 @@ window.__ModuleLoader__.load({
     let lastData = undefined
     /** In-flight poll promise; lets the refresh control spin until settle. */
     let polling = undefined
+    /** Whether the in-flight poll carries ?refresh=1. */
+    let pollingForced = false
+    /** A forced refresh queued behind a plain poll already in flight. */
+    let queuedForce = undefined
 
     const source = {
       getSnapshot: () => snapshot,
@@ -418,12 +503,10 @@ window.__ModuleLoader__.load({
       for (const listener of listeners) listener()
     }
 
-    const poll = (force) => {
-      if (polling !== undefined) return polling
-      polling = (async () => {
+    const runPoll = async (force) => {
       let next
       try {
-        const response = await fetch(force === true ? ENDPOINT + '?refresh=1' : ENDPOINT, { cache: 'no-store' })
+        const response = await fetch(force ? ENDPOINT + '?refresh=1' : ENDPOINT, { cache: 'no-store' })
         if (!response.ok) throw new Error('HTTP ' + response.status)
         const data = await response.json()
         if (data === null || typeof data !== 'object' || !Array.isArray(data.windows)) {
@@ -438,7 +521,30 @@ window.__ModuleLoader__.load({
           : { phase: 'error', message }
       }
       publish(next)
-      })().finally(() => { polling = undefined })
+    }
+
+    const poll = (force) => {
+      const wantForce = force === true
+      if (polling !== undefined) {
+        // A plain poll in flight cannot stand in for a forced refresh: it
+        // never sent ?refresh=1, so the host is free to answer it from its
+        // throttle cache. Handing it back made the refresh control spin,
+        // settle, and report success with nothing refetched upstream. Queue
+        // the forced poll behind it instead — one at a time, so a held
+        // button cannot stack requests.
+        if (!wantForce || pollingForced) return polling
+        if (queuedForce === undefined) {
+          queuedForce = polling
+            .then(() => poll(true))
+            .finally(() => { queuedForce = undefined })
+        }
+        return queuedForce
+      }
+      pollingForced = wantForce
+      polling = runPoll(wantForce).finally(() => {
+        polling = undefined
+        pollingForced = false
+      })
       return polling
     }
 
