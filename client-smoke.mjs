@@ -151,6 +151,9 @@ assert.ok(wide.includes('dshGlmCompact'), 'wide mode keeps only one compact foot
 assert.ok(wide.includes('dshGlmPopover'), 'quota details render in a transient popover')
 assert.ok(wide.includes('dshGlmGauge'), 'detail metrics use compact circular gauges instead of progress bars')
 assert.ok(wide.includes('dshGlmCompactRing'), 'compact status row carries a worst-window ring')
+assert.ok(wide.includes('dshGlmRing t2 dshGlmGauge'), 'detail ring carries the 5h usage tier')
+assert.ok(styleTags[0].textContent.includes('inset 0 2px 3px'), 'recessed track is part of the shared ring style')
+assert.ok(styleTags[0].textContent.includes('body[data-ds-dark-theme] .dshGlmRing:before'), 'inner bevel has a dark theme treatment')
 assert.ok(!wide.includes('dshGlmTrack'), 'the redesigned UI ships no linear progress tracks')
 
 // Compact headline = worst TOKEN window: MCP counts never dominate it.
@@ -162,7 +165,7 @@ const wideMcpHeavy = renderToString(React.createElement(registration.component, 
   wide: true, useQuota: hookOf(mcpHeavy), refresh: () => {},
 }))
 assert.ok(wideMcpHeavy.includes('dshGlmCompactValue">1%<'), 'headline stays on the token quota (1%), not the 95% MCP bar')
-assert.ok(wideMcpHeavy.includes('dshGlmCompactRing t0'), 'ring tier follows token windows')
+assert.ok(wideMcpHeavy.includes('dshGlmRing t0 dshGlmCompactRing'), 'ring tier follows token windows')
 assert.ok(wideMcpHeavy.includes('950'), 'MCP itself stays visible in the popover detail')
 // Two token windows: the closer-to-limit one leads the headline.
 const weeklyHeavy = { ...snap, data: { ...snap.data, windows: [
@@ -185,7 +188,7 @@ const railMcpOnly = renderToString(React.createElement(registration.component, {
   wide: false, useQuota: hookOf(mcpOnly), refresh: () => {},
 }))
 assert.ok(railMcpOnly.includes('dshGlm rail t4'), 'mcp-only rail fallback keeps the legacy single ring (tier from MCP 95%)')
-assert.equal((railMcpOnly.match(/dshGlmRingFill/g) ?? []).length, 1, 'rail fallback renders exactly one ring')
+assert.equal((railMcpOnly.match(/dshGlmCompactRing/g) ?? []).length, 1, 'rail fallback renders exactly one ring')
 assert.ok(railMcpOnly.includes('MCP 950/1k'), 'rail fallback aria carries the MCP summary')
 
 // Rail form: pure quota per token window — the 5h ring and (on plans with
@@ -198,19 +201,50 @@ const rail = renderToString(React.createElement(registration.component, {
 assert.ok(rail.includes('class="dshGlmRail"'), 'rail stack rendered')
 assert.ok(rail.includes('dshGlmRailItem t2'), '5h rail ring tier: cyan at 42.5%')
 assert.ok(rail.includes('dshGlmRailItem t0'), '7d rail ring tier: bright green at 17.2%')
-assert.equal((rail.match(/dshGlmRingFill/g) ?? []).length, 2, 'rail renders exactly two quota rings (5h + 7d)')
+assert.equal((rail.match(/class="dshGlmRing t\d"/g) ?? []).length, 2, 'rail renders exactly two quota rings (5h + 7d)')
 assert.ok(!rail.includes('dshGlmValue') && !rail.includes('dshGlmCompactValue'), 'no percent digits beside the rings: the arc encodes the share')
-assert.equal((rail.match(/%/g) ?? []).length, 2, 'exactly one % per window, both inside aria labels')
+assert.ok(rail.includes('--dsh-glm-pct:42.5%') && rail.includes('--dsh-glm-pct:17.2%'), 'each ring encodes its own used share')
 assert.ok(rail.includes('5 小时窗口 43%，剩 1h30m 重置'), 'hover/aria tooltip: exact 5h percent + reset wording')
 assert.ok(rail.includes('周额度 17%，剩 3d0h 重置'), 'hover/aria tooltip: exact 7d percent + reset wording')
-assert.ok(rail.includes('class="dshGlmRailCd">1h30m<'), 'the 5h reset countdown span is actually rendered')
-assert.ok(rail.includes('class="dshGlmRailCd">3d0h<'), 'the 7d reset countdown span is actually rendered')
+assert.ok(rail.includes('class="dshGlmRailCd long" aria-hidden="true">1h30m<'), 'the 5h countdown sits inside the ring')
+assert.ok(rail.includes('class="dshGlmRailCd long" aria-hidden="true">3d0h<'), 'the weekly countdown sits inside its ring')
 assert.ok(rail.indexOf('5 小时窗口') < rail.indexOf('周额度'), '5h ring renders above the 7d ring')
 assert.ok(!rail.includes('MCP'), 'rail form carries no MCP data')
 assert.ok(!rail.includes('Pro'), 'rail form carries no plan level')
-const railArc = rail.match(/stroke-dasharray="([0-9.]+) ([0-9.]+)"/)
-assert.ok(railArc !== null && Math.abs(Number(railArc[1]) / Number(railArc[2]) - 0.425) < 0.001,
-  'first ring arc encodes the 5h percent (ratio ~= 42.5%): ' + (railArc ?? ['?'])[0])
+// The groove makes an empty quota visible without a false minimum colored arc.
+const zeroUsed = renderToString(React.createElement(registration.component, {
+  wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 0, resetAt: Date.now() + 90_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(zeroUsed.includes('--dsh-glm-pct:0%'), '0% usage has no false colored segment')
+
+// At the minute boundary the rail and expanded detail change to exact seconds.
+const finalMinute = renderToString(React.createElement(registration.component, {
+  wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 29, resetAt: Date.now() + 59_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(finalMinute.includes('dshGlmRailCd') && finalMinute.includes('>59s<'), '59 seconds are visible in the ring center')
+assert.ok(finalMinute.includes('剩 59s 重置'), 'tooltip uses matching seconds')
+const wideFinalMinute = renderToString(React.createElement(registration.component, {
+  wide: true, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 29, resetAt: Date.now() + 59_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(wideFinalMinute.includes('59s 后重置'), 'expanded metric shares the seconds countdown')
+const lastSecond = renderToString(React.createElement(registration.component, {
+  wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 29, resetAt: Date.now() + 1_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(lastSecond.includes('>1s<'), 'positive sub-second remainder stays at 1s, never early 0s')
+const expired = renderToString(React.createElement(registration.component, {
+  wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 29, resetAt: Date.now() - 1_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(expired.includes('>0s<') && expired.includes('即将重置'), 'expired timestamp waits for fresh projection')
 
 // Unknown TOKEN windows join the rail in host order; unknown NON-token
 // windows never reach the rail or the headline.
@@ -222,7 +256,7 @@ const extraWin = { ...snap, data: { ...snap.data, windows: [
 const railExtra = renderToString(React.createElement(registration.component, {
   wide: false, useQuota: hookOf(extraWin), refresh: () => {},
 }))
-assert.equal((railExtra.match(/dshGlmRingFill/g) ?? []).length, 3, 'unknown token window adds a ring; non-token window does not')
+assert.equal((railExtra.match(/class="dshGlmRing t\d"/g) ?? []).length, 3, 'unknown token window adds a ring; non-token window does not')
 assert.ok(railExtra.includes('Tok(u9,n2) 3%'), 'unknown token window renders with its raw label')
 const wideExtra = renderToString(React.createElement(registration.component, {
   wide: true, useQuota: hookOf(extraWin), refresh: () => {},
@@ -260,7 +294,7 @@ const railNoWeekly = renderToString(React.createElement(registration.component, 
   useQuota: hookOf(noWeekly),
   refresh: () => {},
 }))
-assert.equal((railNoWeekly.match(/dshGlmRingFill/g) ?? []).length, 1, 'no weekly window: rail shows only the 5h ring')
+assert.equal((railNoWeekly.match(/class="dshGlmRing t\d"/g) ?? []).length, 1, 'no weekly window: rail shows only the 5h ring')
 assert.ok(!railNoWeekly.includes('3d0h'), 'no weekly window: no weekly countdown in rail')
 // Details stay in the DOM for accessibility, while CSS keeps the popover out of layout until opened.
 assert.ok(wideNoWeekly.includes('aria-expanded="false"'), 'compact trigger starts closed')
