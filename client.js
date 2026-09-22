@@ -33,7 +33,7 @@ window.__ModuleLoader__.load({
       '.dshGlmPlan{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-tertiary);font-size:11px;line-height:16px;font-weight:500}',
       '.dshGlmPlan:before{content:"·";margin-right:6px;color:var(--dsw-alias-label-dimmed)}',
       '.dshGlmCompactValue{flex:none;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;font-weight:600;font-variant-numeric:tabular-nums}',
-      '.dshGlmCompactRing{flex:none;width:22px;height:22px;transform:rotate(-90deg)}',
+      '.dshGlmCompactRing{flex:none;width:22px;height:22px;--dsh-glm-groove:3px}',
       '.dshGlmChevron{flex:none;display:inline-flex;color:var(--dsw-alias-label-tertiary);transition:transform .2s ease}',
       '.dshGlmOpen .dshGlmChevron{transform:rotate(180deg)}',
       '.dshGlmPopover{display:none;position:absolute;left:0;right:0;bottom:calc(100% + 8px);box-sizing:border-box;max-height:min(360px,calc(100vh - 120px));overflow-y:auto;padding:10px 12px 8px;border:1px solid var(--dsw-alias-border-l1);border-radius:16px;background:var(--dsw-specific-menu);box-shadow:var(--dsw-shadow-lv3)}',
@@ -47,9 +47,9 @@ window.__ModuleLoader__.load({
       '.dshGlmRefreshIcon.spin{animation:dshGlmSpin .8s linear infinite}',
       '@keyframes dshGlmSpin{to{transform:rotate(360deg)}}',
       '.dshGlmMetrics{display:flex;flex-direction:column}',
-      '.dshGlmMetric{--dsh-glm-accent:var(--dsw-static-green-400);box-sizing:border-box;min-width:0;display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 3px}',
+      '.dshGlmMetric{box-sizing:border-box;min-width:0;display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 3px}',
       '.dshGlmMetric+.dshGlmMetric{border-top:1px solid var(--dsw-alias-border-l1)}',
-      '.dshGlmGauge{width:28px;height:28px;color:var(--dsh-glm-accent);transform:rotate(-90deg)}',
+      '.dshGlmGauge{width:28px;height:28px;--dsh-glm-groove:4px}',
       '.dshGlmMetricCopy{min-width:0}',
       '.dshGlmLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;font-weight:550}',
       '.dshGlmMeta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-tertiary);font-size:10px;line-height:14px;font-variant-numeric:tabular-nums}',
@@ -61,41 +61,29 @@ window.__ModuleLoader__.load({
       '.dshGlmWarn{flex:none;width:6px;height:6px;border-radius:50%;background:#ff9f0a;box-shadow:0 0 0 2px color-mix(in srgb,#ff9f0a 18%,transparent)}',
       '.dshGlm.rail{width:36px;height:36px;margin:8px 0 10px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;transition:background .15s}',
       '.dshGlm.rail:hover{background:var(--dsw-alias-interactive-bg-hover)}',
-      '.dshGlmRail{width:36px;margin:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:6px}',
-      '.dshGlmRailItem{box-sizing:border-box;width:36px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;border:none;border-radius:12px;background:transparent;cursor:pointer;transition:background .15s;user-select:none}',
+      '.dshGlmRail{width:48px;margin:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:6px}',
+      '.dshGlmRailItem{box-sizing:border-box;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:1px;border:none;border-radius:50%;background:transparent;cursor:pointer;transition:background .15s;user-select:none}',
       '.dshGlmRailItem:hover{background:var(--dsw-alias-interactive-bg-hover)}',
       '.dshGlmRailItem:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:1px}',
-      '.dshGlmRailCd{color:var(--dsw-alias-label-tertiary);font-size:10px;line-height:12px;font-weight:500;font-variant-numeric:tabular-nums}',
-      '.dshGlmSvg{transform:rotate(-90deg)}',
-      '.dshGlmRingTrack{fill:none;stroke:var(--dsw-alias-border-l2);stroke-width:5}',
-      '.dshGlmRingFill{fill:none;stroke:currentColor;stroke-width:5;stroke-linecap:round;transition:stroke-dasharray .6s cubic-bezier(.22,1,.36,1)}',
-      '.dshGlmMetric.t0{--dsh-glm-accent:var(--dsw-static-green-400)}',
-      '.dshGlmMetric.t1{--dsh-glm-accent:var(--dsw-static-green-500)}',
-      '.dshGlmMetric.t2{--dsh-glm-accent:#0891b2}',
-      '.dshGlmMetric.t3{--dsh-glm-accent:#b45309}',
-      '.dshGlmMetric.t4{--dsh-glm-accent:var(--dsw-static-red-500)}',
-      '.dshGlmCompactRing.t0,.dshGlm.rail.t0{color:var(--dsw-static-green-400)}',
-      '.dshGlmCompactRing.t1,.dshGlm.rail.t1{color:var(--dsw-static-green-500)}',
-      '.dshGlmCompactRing.t2,.dshGlm.rail.t2{color:#0891b2}',
-      '.dshGlmCompactRing.t3,.dshGlm.rail.t3{color:#b45309}',
-      '.dshGlmCompactRing.t4,.dshGlm.rail.t4{color:var(--dsw-static-red-500)}',
-      '.dshGlmRailItem.t0 .dshGlmSvg{color:var(--dsw-static-green-400)}',
-      '.dshGlmRailItem.t1 .dshGlmSvg{color:var(--dsw-static-green-500)}',
-      '.dshGlmRailItem.t2 .dshGlmSvg{color:#0891b2}',
-      '.dshGlmRailItem.t3 .dshGlmSvg{color:#b45309}',
-      '.dshGlmRailItem.t4 .dshGlmSvg{color:var(--dsw-static-red-500)}',
+      '.dshGlmRing{--dsh-glm-accent:var(--dsw-static-green-400);--dsh-glm-groove:5px;position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;border-radius:50%;background:conic-gradient(from -90deg,var(--dsh-glm-accent) var(--dsh-glm-pct),var(--dsw-alias-border-l2) 0);box-shadow:inset 0 2px 3px rgb(0 0 0 / 18%),inset 0 -1px 1px rgb(255 255 255 / 75%),0 1px 1px rgb(255 255 255 / 70%)}',
+      '.dshGlmRing:before{content:"";position:absolute;inset:var(--dsh-glm-groove);border-radius:50%;background:var(--dsw-alias-bg-layer-1);box-shadow:0 0 0 1px rgb(255 255 255 / 70%),0 2px 3px rgb(0 0 0 / 18%),inset 0 1px 1px rgb(255 255 255 / 65%)}',
+      '.dshGlmGauge:before{background:var(--dsw-specific-menu)}',
+      '.dshGlmRailCd{position:relative;z-index:1;color:var(--dsw-alias-label-primary);font-size:12px;line-height:1;font-weight:650;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap}',
+      '.dshGlmRailCd.long{font-size:9px}',
+      '.dshGlmRing.t0{--dsh-glm-accent:var(--dsw-static-green-400)}',
+      '.dshGlmRing.t1{--dsh-glm-accent:var(--dsw-static-green-500)}',
+      '.dshGlmRing.t2{--dsh-glm-accent:#0891b2}',
+      '.dshGlmRing.t3{--dsh-glm-accent:#b45309}',
+      '.dshGlmRing.t4{--dsh-glm-accent:var(--dsw-static-red-500)}',
       'body[data-ds-dark-theme] .dshGlmCompact,body[data-ds-dark-theme] .dshGlmPopover{box-shadow:0 4px 18px rgb(0 0 0 / 24%)}',
-      'body[data-ds-dark-theme] .dshGlmMetric.t0,body[data-ds-dark-theme] .dshGlmCompactRing.t0,body[data-ds-dark-theme] .dshGlm.rail.t0{--dsh-glm-accent:#30d158;color:#30d158}',
-      'body[data-ds-dark-theme] .dshGlmMetric.t1,body[data-ds-dark-theme] .dshGlmCompactRing.t1,body[data-ds-dark-theme] .dshGlm.rail.t1{--dsh-glm-accent:#32d74b;color:#32d74b}',
-      'body[data-ds-dark-theme] .dshGlmMetric.t2,body[data-ds-dark-theme] .dshGlmCompactRing.t2,body[data-ds-dark-theme] .dshGlm.rail.t2{--dsh-glm-accent:#22d3ee;color:#22d3ee}',
-      'body[data-ds-dark-theme] .dshGlmMetric.t3,body[data-ds-dark-theme] .dshGlmCompactRing.t3,body[data-ds-dark-theme] .dshGlm.rail.t3{--dsh-glm-accent:#ffb020;color:#ffb020}',
-      'body[data-ds-dark-theme] .dshGlmMetric.t4,body[data-ds-dark-theme] .dshGlmCompactRing.t4,body[data-ds-dark-theme] .dshGlm.rail.t4{--dsh-glm-accent:#ff5d5d;color:#ff5d5d}',
-      'body[data-ds-dark-theme] .dshGlmRailItem.t0 .dshGlmSvg{color:#30d158}',
-      'body[data-ds-dark-theme] .dshGlmRailItem.t1 .dshGlmSvg{color:#32d74b}',
-      'body[data-ds-dark-theme] .dshGlmRailItem.t2 .dshGlmSvg{color:#22d3ee}',
-      'body[data-ds-dark-theme] .dshGlmRailItem.t3 .dshGlmSvg{color:#ffb020}',
-      'body[data-ds-dark-theme] .dshGlmRailItem.t4 .dshGlmSvg{color:#ff5d5d}',
-      '@media (prefers-reduced-motion:reduce){.dshGlmPopover,.dshGlmRingFill,.dshGlmAction,.dshGlmChevron,.dshGlmRailItem,.dshGlm.rail{transition:none;animation:none}.dshGlmRefreshIcon.spin{animation-duration:2s}}',
+      'body[data-ds-dark-theme] .dshGlmRing{box-shadow:inset 0 2px 3px rgb(0 0 0 / 55%),inset 0 -1px 1px rgb(255 255 255 / 12%),0 1px 1px rgb(255 255 255 / 8%)}',
+      'body[data-ds-dark-theme] .dshGlmRing:before{box-shadow:0 0 0 1px rgb(255 255 255 / 10%),0 2px 3px rgb(0 0 0 / 55%),inset 0 1px 1px rgb(255 255 255 / 10%)}',
+      'body[data-ds-dark-theme] .dshGlmRing.t0{--dsh-glm-accent:#30d158}',
+      'body[data-ds-dark-theme] .dshGlmRing.t1{--dsh-glm-accent:#32d74b}',
+      'body[data-ds-dark-theme] .dshGlmRing.t2{--dsh-glm-accent:#22d3ee}',
+      'body[data-ds-dark-theme] .dshGlmRing.t3{--dsh-glm-accent:#ffb020}',
+      'body[data-ds-dark-theme] .dshGlmRing.t4{--dsh-glm-accent:#ff5d5d}',
+      '@media (prefers-reduced-motion:reduce){.dshGlmPopover,.dshGlmAction,.dshGlmChevron,.dshGlmRailItem,.dshGlm.rail{transition:none;animation:none}.dshGlmRefreshIcon.spin{animation-duration:2s}}',
     ].join('')
     const cssTag = '@young1lin/dsh-glm-quota/styles.css'
     if (typeof document !== 'undefined'
@@ -116,13 +104,13 @@ window.__ModuleLoader__.load({
       return 't0'
     }
 
-    /** Compact countdown: <1m / Xm / XhYm / XdYh; '' when unknown. */
+    /** Compact countdown: seconds under one minute, then minutes/hours/days. */
     function countdown(resetAt, now) {
       if (resetAt === undefined || resetAt <= 0) return ''
       const diff = resetAt - now
       if (diff <= 0) return '即将刷新'
-      const totalSec = Math.floor(diff / 1000)
-      if (totalSec < 60) return '<1m'
+      const totalSec = Math.ceil(diff / 1000)
+      if (totalSec < 60) return totalSec + 's'
       const hours = Math.floor(totalSec / 3600)
       const mins = Math.floor(totalSec / 60) % 60
       if (hours >= 24) return Math.floor(hours / 24) + 'd' + (hours % 24) + 'h'
@@ -146,14 +134,28 @@ window.__ModuleLoader__.load({
       return (n % 1000000 === 0 ? n / 1000000 : Math.round(n / 100000) / 10) + 'M'
     }
 
-    /** Ring circumference for the rail form's 36-unit viewBox (r = 15.5). */
-    const RING_C = 2 * Math.PI * 15.5
+    /** One recessed ring style, scaled for the rail, detail, and trigger. */
+    function QuotaRing({ percent, tier, className, label, countdownText }) {
+      const pct = Math.max(0, Math.min(100, percent))
+      const displayTime = countdownText === '即将刷新' ? '0s' : countdownText
+      return React.createElement('span', {
+        className: 'dshGlmRing ' + tier + (className ? ' ' + className : ''),
+        style: { '--dsh-glm-pct': pct + '%' },
+        role: label ? 'img' : undefined,
+        'aria-label': label,
+        'aria-hidden': label ? undefined : true,
+      }, displayTime
+        ? React.createElement('span', {
+          className: 'dshGlmRailCd' + (displayTime.length > 3 ? ' long' : ''),
+          'aria-hidden': true,
+        }, displayTime)
+        : null)
+    }
 
     /** One quota metric: a quiet circular gauge plus label, reset, and exact value. */
     function QuotaMetric({ label, window: w, now }) {
       const pct = Math.max(0, Math.min(100, pctOf(w)))
       const tier = tierOf(pct)
-      const ringPct = pct <= 0 ? 4 : pct
       const isCount = w.id === 'mcp' && w.used !== undefined && w.limit !== undefined
       const titleBits = [label + '已用 ' + Math.round(pct) + '%']
       if (isCount) titleBits.unshift('已用 ' + compactCount(w.used) + ' / ' + compactCount(w.limit) + ' 次')
@@ -167,15 +169,10 @@ window.__ModuleLoader__.load({
         className: 'dshGlmMetric ' + tier,
         title: titleBits.join(' · '),
       },
-        React.createElement('svg', {
-          className: 'dshGlmGauge', width: 28, height: 28, viewBox: '0 0 36 36',
-          role: 'img', 'aria-label': label + '已用 ' + Math.round(pct) + '%',
-        },
-          React.createElement('circle', { className: 'dshGlmRingTrack', cx: 18, cy: 18, r: 15.5 }),
-          React.createElement('circle', {
-            className: 'dshGlmRingFill', cx: 18, cy: 18, r: 15.5,
-            strokeDasharray: (RING_C * ringPct / 100) + ' ' + RING_C,
-          })),
+        React.createElement(QuotaRing, {
+          percent: pct, tier, className: 'dshGlmGauge',
+          label: label + '已用 ' + Math.round(pct) + '%',
+        }),
         React.createElement('div', { className: 'dshGlmMetricCopy' },
           React.createElement('div', { className: 'dshGlmLabel' }, label),
           meta === '' ? null : React.createElement('div', { className: 'dshGlmMeta' }, meta)),
@@ -205,13 +202,11 @@ window.__ModuleLoader__.load({
 
     /**
      * Narrow-rail quota item: tier-colored ring whose arc encodes the used
-     * share, reset countdown under it. Pure quota — no plan name, no MCP
-     * counts, no digits inside the ring (tooltip carries the exact percent).
+     * share, reset countdown in its center. Precise percent stays in tooltip.
      */
     function QuotaRailItem({ label, window: w, now, refresh, stale }) {
       const pct = Math.max(0, Math.min(100, pctOf(w)))
       const tier = tierOf(pct)
-      const ringPct = pct <= 0 ? 4 : pct
       const left = countdown(w.resetAt, now)
       const title = label + ' ' + Math.round(pct) + '%'
         + (left === '即将刷新' ? '，即将重置' : left !== '' ? '，剩 ' + left + ' 重置' : '')
@@ -222,15 +217,7 @@ window.__ModuleLoader__.load({
           type: 'button', className: 'dshGlmRailItem ' + tier,
           onClick: refresh, 'aria-label': title,
         },
-          React.createElement('svg', {
-            className: 'dshGlmSvg', width: 30, height: 30, viewBox: '0 0 36 36', 'aria-hidden': true,
-          },
-            React.createElement('circle', { className: 'dshGlmRingTrack', cx: 18, cy: 18, r: 15.5 }),
-            React.createElement('circle', {
-              className: 'dshGlmRingFill', cx: 18, cy: 18, r: 15.5,
-              strokeDasharray: (RING_C * ringPct / 100) + ' ' + RING_C,
-            })),
-          left !== '' ? React.createElement('span', { className: 'dshGlmRailCd' }, left === '即将刷新' ? '0m' : left) : null))
+          React.createElement(QuotaRing, { percent: pct, tier, countdownText: left })))
     }
 
     /**
@@ -246,10 +233,12 @@ window.__ModuleLoader__.load({
       // Details are transient: the sidebar keeps only one 42px status row in layout.
       const [open, setOpen] = useState(false)
       const rootRef = useRef(null)
+      const secondsVisible = snapshot.phase === 'ready' && snapshot.data.windows.some((w) =>
+        w.resetAt > now && w.resetAt - now <= 60_000)
       useEffect(() => {
-        const timer = setInterval(() => { setNow(Date.now()) }, 30_000)
+        const timer = setInterval(() => { setNow(Date.now()) }, secondsVisible ? 1_000 : 30_000)
         return () => { clearInterval(timer) }
-      }, [])
+      }, [secondsVisible])
       useEffect(() => {
         if (!open) return undefined
         const closeOutside = (event) => {
@@ -314,14 +303,11 @@ window.__ModuleLoader__.load({
           : w.label + ' ' + Math.round(w.percent) + '%')).join(' · ')
         + (snapshot.stale === true ? '（获取失败，显示上次数据）' : '')
 
-      // Zero usage still draws a small fixed arc: with none, a round-linecap
-      // dot at 0% is nearly invisible and the control reads as empty space.
-      const ringPct = worst <= 0 ? 4 : Math.max(0, Math.min(100, worst))
       if (!wide) {
         // Pure quota per token window: the 5h ring, the 7d ring below when
         // the plan has a weekly limit, unknown token windows after. The arc
-        // encodes the share, the reset countdown sits under it. No plan
-        // name, no MCP, no digits, no blended worst-window ring.
+        // encodes the share, the reset countdown sits inside it. No plan
+        // name, no MCP, no percent digits, no blended worst-window ring.
         const railWindows = windows.filter(isTokenWindow)
         if (railWindows.length > 0) {
           return React.createElement('div', { className: 'dshGlmRail' },
@@ -337,14 +323,9 @@ window.__ModuleLoader__.load({
             type: 'button', className: 'dshGlm rail ' + worstTier,
             onClick: refresh, 'aria-label': summary,
           },
-            React.createElement('svg', {
-              className: 'dshGlmSvg', width: 22, height: 22, viewBox: '0 0 36 36', 'aria-hidden': true,
-            },
-              React.createElement('circle', { className: 'dshGlmRingTrack', cx: 18, cy: 18, r: 15.5 }),
-              React.createElement('circle', {
-                className: 'dshGlmRingFill', cx: 18, cy: 18, r: 15.5,
-                strokeDasharray: (RING_C * ringPct / 100) + ' ' + RING_C,
-              }))))
+            React.createElement(QuotaRing, {
+              percent: worst, tier: worstTier, className: 'dshGlmCompactRing',
+            })))
       }
 
       const metrics = []
@@ -411,15 +392,9 @@ window.__ModuleLoader__.load({
             data.planLevel !== '' ? React.createElement('span', { className: 'dshGlmPlan' }, data.planLevel) : null),
           snapshot.stale === true ? React.createElement('span', { className: 'dshGlmWarn', 'aria-hidden': true }) : null,
           React.createElement('span', { className: 'dshGlmCompactValue' }, Math.round(worst) + '%'),
-          React.createElement('svg', {
-            className: 'dshGlmCompactRing ' + worstTier,
-            width: 22, height: 22, viewBox: '0 0 36 36', 'aria-hidden': true,
-          },
-            React.createElement('circle', { className: 'dshGlmRingTrack', cx: 18, cy: 18, r: 15.5 }),
-            React.createElement('circle', {
-              className: 'dshGlmRingFill', cx: 18, cy: 18, r: 15.5,
-              strokeDasharray: (RING_C * ringPct / 100) + ' ' + RING_C,
-            })),
+          React.createElement(QuotaRing, {
+            percent: worst, tier: worstTier, className: 'dshGlmCompactRing',
+          }),
           React.createElement(IconChevronDownOutline14, { size: 14, className: 'dshGlmChevron' })))
     }
 
