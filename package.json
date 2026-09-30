@@ -1,6 +1,6 @@
 {
   "name": "@young1lin/dsh-glm-quota",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publishConfig": {
     "access": "public"
   },
@@ -31,7 +31,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "node smoke.mjs && node client-smoke.mjs",
+    "test": "node smoke.mjs && node client-smoke.mjs && node client-smoke.mjs --legacy-icons",
     "preview": "node preview.mjs"
   },
   "dsh": {

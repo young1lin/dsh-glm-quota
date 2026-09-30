@@ -17,7 +17,11 @@ window.__ModuleLoader__.load({
     var exports = module.exports
     const React = require('react')
     const { useEffect, useRef, useState } = React
-    const { Tooltip, IconChevronDownOutline14, IconRefreshOutline14 } = require('@deepseek-ai/dsh-client-ui-primitives')
+    const primitives = require('@deepseek-ai/dsh-client-ui-primitives')
+    const { Tooltip } = primitives
+    // DSH 0.2 renamed the 14px icons to Regular; keep older releases usable.
+    const IconChevronDown = primitives.IconChevronDownOutlineRegular ?? primitives.IconChevronDownOutline14
+    const IconRefresh = primitives.IconRefreshOutlineRegular ?? primitives.IconRefreshOutline14
 
     const ENDPOINT = '/glm-quota/state'
     const POLL_MS = 30_000
@@ -35,7 +39,7 @@ window.__ModuleLoader__.load({
       '.dshGlmCompactValue{flex:none;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;font-weight:600;font-variant-numeric:tabular-nums}',
       '.dshGlmChevron{flex:none;display:inline-flex;color:var(--dsw-alias-label-tertiary);transition:transform .2s ease}',
       '.dshGlmOpen .dshGlmChevron{transform:rotate(180deg)}',
-      '.dshGlmPopover{display:none;position:absolute;left:0;right:0;bottom:calc(100% + 8px);box-sizing:border-box;max-height:min(360px,calc(100vh - 120px));overflow-y:auto;padding:10px 12px 8px;border:1px solid var(--dsw-alias-border-l1);border-radius:16px;background:var(--dsw-specific-menu);box-shadow:var(--dsw-shadow-lv3)}',
+      '.dshGlmPopover{display:none;position:absolute;left:0;right:0;bottom:calc(100% + 8px);box-sizing:border-box;max-height:min(360px,calc(100vh - 120px));overflow-y:auto;padding:10px 12px 8px;border:1px solid var(--dsw-alias-border-l1);border-radius:16px;background:var(--dsw-alias-bg-layer-1,#fff);box-shadow:var(--dsw-shadow-lv3)}',
       '.dshGlmOpen .dshGlmPopover{display:block;animation:dshGlmPopoverIn .16s cubic-bezier(.22,1,.36,1)}',
       '@keyframes dshGlmPopoverIn{from{opacity:0;transform:translateY(4px)}}',
       '.dshGlmPopoverHead{display:flex;align-items:center;gap:6px;min-height:26px;padding:0 0 5px 3px}',
@@ -69,7 +73,7 @@ window.__ModuleLoader__.load({
       // Deepen it with the tertiary label color so it still follows the theme.
       '.dshGlmRing{--dsh-glm-accent:var(--dsw-static-green-400);--dsh-glm-track:color-mix(in srgb,var(--dsw-alias-label-tertiary) 30%,var(--dsw-alias-border-l2));--dsh-glm-groove:5px;position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;border-radius:50%;background:conic-gradient(from -90deg,var(--dsh-glm-accent) var(--dsh-glm-pct),var(--dsh-glm-track) 0);box-shadow:inset 0 2px 3px rgb(0 0 0 / 18%),inset 0 -1px 1px rgb(255 255 255 / 75%),0 1px 1px rgb(255 255 255 / 70%)}',
       '.dshGlmRing:before{content:"";position:absolute;inset:var(--dsh-glm-groove);border-radius:50%;background:var(--dsw-alias-bg-layer-1);box-shadow:0 0 0 1px rgb(255 255 255 / 70%),0 2px 3px rgb(0 0 0 / 18%),inset 0 1px 1px rgb(255 255 255 / 65%)}',
-      '.dshGlmRing.dshGlmGauge:before{background:var(--dsw-specific-menu)}',
+      '.dshGlmRing.dshGlmGauge:before{background:var(--dsw-alias-bg-layer-1,#fff)}',
       // The host theme smooths every corner app-wide via
       // `*,:before,:after{corner-shape:superellipse(1.5)}`. On any
       // border-radius:50% box those four superellipse arcs bulge outward
@@ -453,7 +457,7 @@ window.__ModuleLoader__.load({
                 setSpinning(true)
                 Promise.resolve(refresh()).finally(() => { setSpinning(false) })
               },
-            }, React.createElement(IconRefreshOutline14, {
+            }, React.createElement(IconRefresh, {
               size: 14, className: 'dshGlmRefreshIcon' + (spinning ? ' spin' : ''),
             }))),
           metrics.length > 0
@@ -476,7 +480,7 @@ window.__ModuleLoader__.load({
           React.createElement(QuotaRing, {
             percent: worst, tier: worstTier, className: 'dshGlmCompactRing',
           }),
-          React.createElement(IconChevronDownOutline14, { size: 14, className: 'dshGlmChevron' })))
+          React.createElement(IconChevronDown, { size: 14, className: 'dshGlmChevron' })))
     }
 
     // --- quota source: poll the host endpoint into a bare observable -------

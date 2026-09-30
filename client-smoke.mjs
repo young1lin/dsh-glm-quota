@@ -61,12 +61,14 @@ new Function('window', source)(globalThis.window)
 assert.equal(handoff.id, '@young1lin/dsh-glm-quota', 'handoff id matches the graph row id')
 
 // --- materialize with an injected require over platform stubs ------------
+const iconSuffix = process.argv.includes('--legacy-icons') ? '14' : 'Regular'
 const platform = {
   react: React,
   '@deepseek-ai/dsh-client-ui-primitives': {
     Tooltip: (props) => props.children,
-    IconChevronDownOutline14: (props) => React.createElement('svg', { className: props.className, 'data-chevron': true }),
-    IconRefreshOutline14: (props) => React.createElement('svg', { className: props.className, 'data-refresh': true }),
+    // Expose only one icon family to test both the current and legacy hosts.
+    [`IconChevronDownOutline${iconSuffix}`]: (props) => React.createElement('svg', { className: props.className, 'data-chevron': true }),
+    [`IconRefreshOutline${iconSuffix}`]: (props) => React.createElement('svg', { className: props.className, 'data-refresh': true }),
   },
 }
 const requireShim = (spec) => {
@@ -77,6 +79,10 @@ const exports_ = handoff.factory(requireShim)
 assert.deepEqual(exports_.inject, ['slots'])
 assert.equal(typeof exports_.apply, 'function')
 assert.equal(styleTags.length, 1, 'style tag injected: ' + styleTags[0].dataset.pluginCss)
+// The host menu token is translucent (#f8f9fa94); the quota details must
+// obscure conversation titles behind the popover, including gauge centers.
+assert.match(styleTags[0].textContent, /\.dshGlmPopover\{[^}]*background:var\(--dsw-alias-bg-layer-1,#fff\)/)
+assert.match(styleTags[0].textContent, /\.dshGlmRing\.dshGlmGauge:before\{[^}]*background:var\(--dsw-alias-bg-layer-1,#fff\)/)
 
 // --- apply() with a fake slot registry -----------------------------------
 let registration = undefined
@@ -169,6 +175,8 @@ const wide = renderToString(React.createElement(registration.component, {
   refresh: () => {},
 }))
 assert.ok(wide.includes('GLM'), 'plan title rendered')
+assert.ok(wide.includes('data-chevron'), 'the selected DSH chevron icon renders')
+assert.ok(wide.includes('data-refresh'), 'the selected DSH refresh icon renders')
 assert.ok(wide.includes('Pro'), 'plan level rendered')
 assert.ok(wide.includes('Coding Plan · Pro 额度'), 'the popover title names the plan tier, not a constant')
 assert.ok(wide.includes('周额度'), 'weekly metric rendered only when the 7d window exists')
