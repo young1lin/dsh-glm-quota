@@ -104,13 +104,16 @@ const get = async (refresh) => {
   return JSON.parse(res.body)
 }
 
-// 1. Boot fetch serves the mapped projection. Poll instead of a fixed
-//    sleep: a cold CI runner can take longer than 50ms to round-trip the
-//    read-state-file -> write-state-file -> HTTP chain. The throttle still
-//    caps the boot sequence at exactly one request, so === 1 stays strict.
+// 1. Boot fetch serves the mapped projection. Wait for the served result,
+//    not merely an upstream hit: a cold Windows runner can take longer to
+//    finish the response and persist it. No forced call is used here, so
+//    this still proves that boot itself fetches exactly once.
 const bootDeadline = Date.now() + 5_000
-while (upstream.hits < 1 && Date.now() < bootDeadline) await sleep(25)
 let state = await get()
+while ((upstream.hits < 1 || state.windows.length !== 4) && Date.now() < bootDeadline) {
+  await sleep(25)
+  state = await get()
+}
 assert.equal(upstream.hits, 1, 'one boot fetch')
 assert.equal(state.planLevel, 'Pro')
 assert.deepEqual(
@@ -221,7 +224,10 @@ const ctx429 = {
   effect: (register) => { const d = register(); disposers429.push(d); return d },
 }
 apply(ctx429, Config({ baseURL: upstreamUrl, stateFile: stateFile429, minFetchIntervalMs: 1_500, errorBackoffMs: 60_000, rateLimitBackoffMs: 120_000 }))
-await sleep(100)
+// Join the successful startup flight before changing the upstream response.
+// A fixed delay can leave the next forced refresh coalesced with that flight.
+state = await get(true)
+assert.equal(state.windows.length, 4, '429 instance has a completed successful projection')
 const hitsBefore429 = upstream.hits
 upstream.mode = 'rate-limit'
 state = await new Promise((resolve) => {
