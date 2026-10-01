@@ -61,19 +61,15 @@ window.__ModuleLoader__.load({
       '.dshGlmEmpty{padding:10px 4px;color:var(--dsw-alias-label-tertiary);font-size:11px;text-align:center}',
       '.dshGlmDim{color:var(--dsw-alias-label-tertiary)}',
       '.dshGlmWarn{flex:none;width:6px;height:6px;border-radius:50%;background:#ff9f0a;box-shadow:0 0 0 2px color-mix(in srgb,#ff9f0a 18%,transparent)}',
-      '.dshGlm.rail{width:36px;height:36px;margin:8px 0 10px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;transition:background .15s}',
+      '.dshGlm.rail{width:36px;height:36px;margin:4px 0 6px;padding:0;border-radius:var(--dsw-radius-sm,8px);display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;font:inherit;transition:background .15s}',
       '.dshGlm.rail:hover{background:var(--dsw-alias-interactive-bg-hover)}',
-      '.dshGlmRail{width:48px;margin:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:6px}',
-      '.dshGlmRailItem{box-sizing:border-box;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:1px;border:none;border-radius:50%;background:transparent;cursor:pointer;transition:background .15s;user-select:none}',
+      '.dshGlmRail{width:36px;margin:4px 0 6px;display:flex;flex-direction:column;align-items:center;gap:4px}',
+      '.dshGlmRailItem{box-sizing:border-box;width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0;border:none;border-radius:var(--dsw-radius-sm,8px);background:transparent;font:inherit;cursor:pointer;transition:background .15s;user-select:none}',
       '.dshGlmRailItem:hover{background:var(--dsw-alias-interactive-bg-hover)}',
       '.dshGlmRailItem:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:1px}',
-      // --dsh-glm-track paints the unused share. --dsw-alias-border-l2 is a
-      // hairline token: at ring scale it reads as a thin stroke rather than a
-      // gauge track, which is why a lightly used ring looked empty or broken.
-      // Deepen it with the tertiary label color so it still follows the theme.
-      '.dshGlmRing{--dsh-glm-accent:var(--dsw-static-green-400);--dsh-glm-track:color-mix(in srgb,var(--dsw-alias-label-tertiary) 30%,var(--dsw-alias-border-l2));--dsh-glm-groove:5px;position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;border-radius:50%;background:conic-gradient(from -90deg,var(--dsh-glm-accent) var(--dsh-glm-pct),var(--dsh-glm-track) 0);box-shadow:inset 0 2px 3px rgb(0 0 0 / 18%),inset 0 -1px 1px rgb(255 255 255 / 75%),0 1px 1px rgb(255 255 255 / 70%)}',
-      '.dshGlmRing:before{content:"";position:absolute;inset:var(--dsh-glm-groove);border-radius:50%;background:var(--dsw-alias-bg-layer-1);box-shadow:0 0 0 1px rgb(255 255 255 / 70%),0 2px 3px rgb(0 0 0 / 18%),inset 0 1px 1px rgb(255 255 255 / 65%)}',
-      '.dshGlmRing.dshGlmGauge:before{background:var(--dsw-alias-bg-layer-1,#fff)}',
+      // All quota rings share a quiet theme-aware stroke and transparent center.
+      // Avoid filled discs, highlights and bevels on both sidebar and card surfaces.
+      '.dshGlmRing{--dsh-glm-accent:var(--dsw-static-green-400);--dsh-glm-track:color-mix(in srgb,var(--dsw-alias-label-tertiary) 16%,var(--dsw-alias-border-l2));position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:none;border-radius:50%;background:transparent;box-shadow:none}',
       // The host theme smooths every corner app-wide via
       // `*,:before,:after{corner-shape:superellipse(1.5)}`. On any
       // border-radius:50% box those four superellipse arcs bulge outward
@@ -82,20 +78,19 @@ window.__ModuleLoader__.load({
       // draws as a circle or a full-round capsule (a class selector
       // outranks the universal rule); low-radius surfaces like the
       // popover keep the host's continuous corners.
-      '.dshGlmRing,.dshGlmRing:before,.dshGlmWarn,.dshGlmAction,.dshGlm.rail,.dshGlmRailItem,.dshGlmCompact{corner-shape:round}',
-      // Ring size variants: the base .dshGlmRing rule above paints the
-      // 46px rail ring. These modifiers used to sit BEFORE it at equal
-      // specificity, so the later 46px base won and every ring rendered
-      // rail-sized — overflowing the 42px capsule and covering detail
-      // labels. Doubling the class keeps the override order-independent.
-      // Material scales with the control. The three-layer groove reads as a
-      // bevel at 46px, but at 22px those highlights only blur the edge into
-      // grey haze, so the smallest ring keeps one inset shadow and a hairline.
-      '.dshGlmRing.dshGlmCompactRing{width:22px;height:22px;--dsh-glm-groove:3px;box-shadow:inset 0 1px 2px rgb(0 0 0 / 15%)}',
-      '.dshGlmRing.dshGlmCompactRing:before{box-shadow:0 0 0 1px rgb(255 255 255 / 55%)}',
-      '.dshGlmRing.dshGlmGauge{width:28px;height:28px;--dsh-glm-groove:4px}',
-      '.dshGlmRailCd{position:relative;z-index:1;color:var(--dsw-alias-label-primary);font-size:12px;line-height:1;font-weight:650;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap}',
-      '.dshGlmRailCd.mid{font-size:10.5px}',
+      '.dshGlmRing,.dshGlmWarn,.dshGlmAction,.dshGlmCompact{corner-shape:round}',
+      // Keep each control's existing footprint; doubled classes prevent
+      // shared styles from overriding compact/card/rail sizes by source order.
+      // The same SVG scales to a subtle 1.2px / 1.6px / 1.9px visible stroke.
+      '.dshGlmRing.dshGlmCompactRing{width:22px;height:22px}',
+      '.dshGlmRing.dshGlmGauge{width:28px;height:28px}',
+      '.dshGlmRing.dshGlmRailRing{width:34px;height:34px}',
+      '.dshGlmRingSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}',
+      '.dshGlmRingTrack,.dshGlmRingArc{fill:none;stroke-width:2}',
+      '.dshGlmRingTrack{stroke:var(--dsh-glm-track)}',
+      '.dshGlmRingArc{stroke:var(--dsh-glm-accent)}',
+      '.dshGlmRailCd{position:relative;z-index:1;color:var(--dsw-alias-label-primary);font-family:inherit;font-size:11px;line-height:1;font-weight:550;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap}',
+      '.dshGlmRailCd.mid{font-size:10px}',
       '.dshGlmRailCd.long{font-size:9px}',
       '.dshGlmRing.t0{--dsh-glm-accent:var(--dsw-static-green-400)}',
       '.dshGlmRing.t1{--dsh-glm-accent:var(--dsw-static-green-500)}',
@@ -103,11 +98,7 @@ window.__ModuleLoader__.load({
       '.dshGlmRing.t3{--dsh-glm-accent:#b45309}',
       '.dshGlmRing.t4{--dsh-glm-accent:var(--dsw-static-red-500)}',
       'body[data-ds-dark-theme] .dshGlmCompact,body[data-ds-dark-theme] .dshGlmPopover{box-shadow:0 4px 18px rgb(0 0 0 / 24%)}',
-      'body[data-ds-dark-theme] .dshGlmRing{box-shadow:inset 0 2px 3px rgb(0 0 0 / 55%),inset 0 -1px 1px rgb(255 255 255 / 12%),0 1px 1px rgb(255 255 255 / 8%)}',
-      'body[data-ds-dark-theme] .dshGlmRing:before{box-shadow:0 0 0 1px rgb(255 255 255 / 10%),0 2px 3px rgb(0 0 0 / 55%),inset 0 1px 1px rgb(255 255 255 / 10%)}',
-      'body[data-ds-dark-theme] .dshGlmRing{--dsh-glm-track:color-mix(in srgb,var(--dsw-alias-label-tertiary) 38%,var(--dsw-alias-border-l2))}',
-      'body[data-ds-dark-theme] .dshGlmRing.dshGlmCompactRing{box-shadow:inset 0 1px 2px rgb(0 0 0 / 50%)}',
-      'body[data-ds-dark-theme] .dshGlmRing.dshGlmCompactRing:before{box-shadow:0 0 0 1px rgb(255 255 255 / 9%)}',
+      'body[data-ds-dark-theme] .dshGlmRing{box-shadow:none;--dsh-glm-track:color-mix(in srgb,var(--dsw-alias-label-tertiary) 20%,var(--dsw-alias-border-l2))}',
       'body[data-ds-dark-theme] .dshGlmRing.t0{--dsh-glm-accent:#30d158}',
       'body[data-ds-dark-theme] .dshGlmRing.t1{--dsh-glm-accent:#32d74b}',
       'body[data-ds-dark-theme] .dshGlmRing.t2{--dsh-glm-accent:#22d3ee}',
@@ -198,24 +189,34 @@ window.__ModuleLoader__.load({
       return ''
     }
 
-    /** One recessed ring style, scaled for the rail, detail, and trigger. */
-    function QuotaRing({ percent, tier, className, label, countdownText }) {
+    /** One flat SVG ring shared by the rail, compact trigger, and detail rows. */
+    function QuotaRing({ percent, tier, className, label, countdownText, rail = false }) {
       const pct = Math.max(0, Math.min(100, percent))
-      // A 1% share is a 3.6 degree arc — invisible on a 3-5px groove, so a
-      // barely touched window rendered as a dead empty circle. Give any
-      // non-zero share a floor of 4% of the circumference (~2px of arc).
+      // Keep lightly used windows visible even in the 22px compact ring.
+      // A non-zero share gets the existing 4% minimum visible arc; this
+      // changes only the visual cue, never the printed usage or tooltip.
       // A true 0% still draws nothing: the spec forbids a false starting
       // segment, and the exact figure stays in the digits and the accessible
       // name either way.
       const arc = pct > 0 ? Math.max(pct, 4) : 0
       const text = countdownText === undefined ? '' : countdownText
       return React.createElement('span', {
-        className: 'dshGlmRing ' + tier + (className ? ' ' + className : ''),
+        className: 'dshGlmRing ' + tier + (className ? ' ' + className : '') + (rail ? ' dshGlmRailRing' : ''),
         style: { '--dsh-glm-pct': arc + '%' },
         role: label ? 'img' : undefined,
         'aria-label': label,
         'aria-hidden': label ? undefined : true,
-      }, text === ''
+      }, React.createElement('svg', {
+        className: 'dshGlmRingSvg', viewBox: '0 0 36 36',
+        'aria-hidden': true, focusable: false,
+      },
+        React.createElement('circle', { className: 'dshGlmRingTrack', cx: 18, cy: 18, r: 16 }),
+        arc > 0 ? React.createElement('circle', {
+          className: 'dshGlmRingArc', cx: 18, cy: 18, r: 16, pathLength: 100,
+          strokeDasharray: arc + ' ' + (100 - arc), strokeLinecap: 'round',
+          transform: 'rotate(-90 18 18)',
+        }) : null,
+      ), text === ''
         ? null
         : React.createElement('span', {
           className: 'dshGlmRailCd' + countdownSize(text),
@@ -293,7 +294,7 @@ window.__ModuleLoader__.load({
           type: 'button', className: 'dshGlmRailItem ' + tier,
           onClick: refresh, 'aria-label': title,
         },
-          React.createElement(QuotaRing, { percent: pct, tier, countdownText: cd.text })))
+          React.createElement(QuotaRing, { percent: pct, tier, countdownText: cd.text, rail: true })))
     }
 
     /**
@@ -400,7 +401,7 @@ window.__ModuleLoader__.load({
             onClick: refresh, 'aria-label': summary,
           },
             React.createElement(QuotaRing, {
-              percent: worst, tier: worstTier, className: 'dshGlmCompactRing',
+              percent: worst, tier: worstTier, rail: true,
             })))
       }
 

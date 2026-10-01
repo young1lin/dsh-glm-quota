@@ -82,7 +82,7 @@ assert.equal(styleTags.length, 1, 'style tag injected: ' + styleTags[0].dataset.
 // The host menu token is translucent (#f8f9fa94); the quota details must
 // obscure conversation titles behind the popover, including gauge centers.
 assert.match(styleTags[0].textContent, /\.dshGlmPopover\{[^}]*background:var\(--dsw-alias-bg-layer-1,#fff\)/)
-assert.match(styleTags[0].textContent, /\.dshGlmRing\.dshGlmGauge:before\{[^}]*background:var\(--dsw-alias-bg-layer-1,#fff\)/)
+assert.doesNotMatch(styleTags[0].textContent, /\.dshGlmRing[^{}]*:before\{/, 'no ring variant recreates an opaque center disc')
 
 // --- apply() with a fake slot registry -----------------------------------
 let registration = undefined
@@ -196,13 +196,14 @@ assert.ok(wide.includes('dshGlmPopover'), 'quota details render in a transient p
 assert.ok(wide.includes('dshGlmGauge'), 'detail metrics use compact circular gauges instead of progress bars')
 assert.ok(wide.includes('dshGlmCompactRing'), 'compact status row carries a worst-window ring')
 assert.ok(wide.includes('dshGlmRing t2 dshGlmGauge'), 'detail ring carries the 5h usage tier')
-assert.ok(styleTags[0].textContent.includes('inset 0 2px 3px'), 'recessed track is part of the shared ring style')
-assert.ok(styleTags[0].textContent.includes('body[data-ds-dark-theme] .dshGlmRing:before'), 'inner bevel has a dark theme treatment')
+assert.match(styleTags[0].textContent, /\.dshGlmRing\{[^}]*background:transparent;box-shadow:none\}/, 'all rings share a transparent, shadow-free base')
+assert.ok(styleTags[0].textContent.includes('body[data-ds-dark-theme] .dshGlmRing{box-shadow:none;'), 'all rings stay shadow-free in dark mode')
 assert.ok(!wide.includes('dshGlmTrack'), 'the redesigned UI ships no linear progress tracks')
 assert.ok(styleTags[0].textContent.includes('--dsh-glm-track'), 'the unused share has its own track token')
-assert.ok(!styleTags[0].textContent.includes('var(--dsw-alias-border-l2) 0)'), 'the groove no longer paints with the hairline border token')
-assert.ok(styleTags[0].textContent.includes('.dshGlmRailCd.mid{font-size:10.5px}'), 'the center label has a middle size step')
-assert.ok(styleTags[0].textContent.includes('.dshGlmRing.dshGlmGauge:before'), 'the gauge inner disc wins on specificity, not source order')
+assert.ok(!styleTags[0].textContent.includes('conic-gradient') && !styleTags[0].textContent.includes('--dsh-glm-groove'), 'legacy recessed ring material is removed')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRailCd.mid{font-size:10px}'), 'the center label has a middle size step')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRing.dshGlmGauge{width:28px;height:28px}'), 'detail gauges preserve their existing 28px footprint and specificity')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRing.dshGlmCompactRing{width:22px;height:22px}'), 'status rings preserve their existing 22px footprint and specificity')
 assert.ok(wide.includes('role="group"') && !wide.includes('role="dialog"'), 'details are a labelled disclosure, not a dialog focus never reaches')
 assert.ok(!wide.includes('40% 已用'), 'the MCP row does not print its percent a third time')
 
@@ -243,7 +244,7 @@ const railMcpOnly = renderToString(React.createElement(registration.component, {
   wide: false, useQuota: hookOf(mcpOnly), refresh: () => {},
 }))
 assert.ok(railMcpOnly.includes('dshGlm rail t4'), 'mcp-only rail fallback keeps the legacy single ring (tier from MCP 95%)')
-assert.equal((railMcpOnly.match(/dshGlmCompactRing/g) ?? []).length, 1, 'rail fallback renders exactly one ring')
+assert.equal((railMcpOnly.match(/dshGlmRailRing/g) ?? []).length, 1, 'rail fallback renders exactly one flat ring')
 assert.ok(railMcpOnly.includes('MCP 950/1k'), 'rail fallback aria carries the MCP summary')
 
 // Rail form: pure quota per token window — the 5h ring and (on plans with
@@ -254,9 +255,17 @@ const rail = renderToString(React.createElement(registration.component, {
   refresh: () => {},
 }))
 assert.ok(rail.includes('class="dshGlmRail"'), 'rail stack rendered')
+assert.equal((rail.match(/class="dshGlmRingSvg"/g) ?? []).length, 2, 'each rail quota uses a flat SVG ring')
+assert.ok(rail.includes('stroke-dasharray="42.5 57.5"'), 'the SVG arc preserves the used quota share')
+assert.equal((wide.match(/class="dshGlmRingSvg"/g) ?? []).length, 4, 'the status trigger and all three detail rows share the same flat SVG ring')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRing.dshGlmRailRing{width:34px;height:34px}'), 'the existing compact 34px rail footprint is preserved')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRingTrack,.dshGlmRingArc{fill:none;stroke-width:2}'), 'all ring variants use thin unfilled SVG strokes')
+assert.doesNotMatch(styleTags[0].textContent, /\.dshGlmRing[^{}]*\{[^}]*box-shadow:(?!none)[^}]+\}/, 'no compact, detail, rail, or dark-theme rule can reinstate a ring bevel')
+assert.ok(styleTags[0].textContent.includes('.dshGlmRailItem{box-sizing:border-box;width:36px;height:36px;'), 'rail hit areas match a compact sidebar control')
+assert.ok(styleTags[0].textContent.includes('border-radius:var(--dsw-radius-sm,8px);background:transparent;font:inherit;'), 'rail buttons inherit native typography and corner tokens')
 assert.ok(rail.includes('dshGlmRailItem t2'), '5h rail ring tier: cyan at 42.5%')
 assert.ok(rail.includes('dshGlmRailItem t0'), '7d rail ring tier: bright green at 17.2%')
-assert.equal((rail.match(/class="dshGlmRing t\d"/g) ?? []).length, 2, 'rail renders exactly two quota rings (5h + 7d)')
+assert.equal((rail.match(/class="dshGlmRing t\d dshGlmRailRing"/g) ?? []).length, 2, 'rail renders exactly two quota rings (5h + 7d)')
 assert.ok(!rail.includes('dshGlmValue') && !rail.includes('dshGlmCompactValue'), 'no percent digits beside the rings: the arc encodes the share')
 assert.ok(rail.includes('--dsh-glm-pct:42.5%') && rail.includes('--dsh-glm-pct:17.2%'), 'each ring encodes its own used share')
 assert.ok(rail.includes('5 小时窗口 43%，剩 1h30m 重置'), 'hover/aria tooltip: exact 5h percent + reset wording')
@@ -266,21 +275,41 @@ assert.ok(rail.includes('class="dshGlmRailCd" aria-hidden="true">3d<'), 'the wee
 assert.ok(rail.indexOf('5 小时窗口') < rail.indexOf('周额度'), '5h ring renders above the 7d ring')
 assert.ok(!rail.includes('MCP'), 'rail form carries no MCP data')
 assert.ok(!rail.includes('Pro'), 'rail form carries no plan level')
-// The groove makes an empty quota visible without a false minimum colored arc.
+// The flat track keeps an empty quota visible without a false colored arc.
 const zeroUsed = renderToString(React.createElement(registration.component, {
   wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
     { id: '5h', label: '5h', percent: 0, resetAt: Date.now() + 90_000 },
   ] } }), refresh: () => {},
 }))
 assert.ok(zeroUsed.includes('--dsh-glm-pct:0%'), '0% usage has no false colored segment')
+assert.ok(zeroUsed.includes('dshGlmRingTrack'), '0% retains a visible unused track')
+assert.ok(!zeroUsed.includes('dshGlmRingArc'), '0% SVG has no false starting dot')
+const fullUsed = renderToString(React.createElement(registration.component, {
+  wide: false, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+    { id: '5h', label: '5h', percent: 100, resetAt: Date.now() + 90_000 },
+  ] } }), refresh: () => {},
+}))
+assert.ok(fullUsed.includes('stroke-dasharray="100 0"'), '100% SVG paints a complete quota ring')
 // ...but a non-zero share must be visible: a 1% arc is 3.6 degrees, which
-// disappears on the groove and reads as a broken empty ring.
+// disappears at compact sizes and reads as a broken empty ring.
 const oneUsed = renderToString(React.createElement(registration.component, {
   wide: true, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
     { id: '5h', label: '5h', percent: 1, resetAt: Date.now() + 90_000 },
   ] } }), refresh: () => {},
 }))
 assert.ok(oneUsed.includes('--dsh-glm-pct:4%'), '1% usage gets the minimum visible arc')
+assert.equal((oneUsed.match(/stroke-dasharray="4 96"/g) ?? []).length, 2, 'both compact and detail rings preserve the minimum visible nonzero arc')
+assert.ok(oneUsed.includes('dshGlmCompactValue">1%<'), 'the minimum visual arc never changes the actual usage digits')
+for (const percent of [0, 100]) {
+  const boundaryWide = renderToString(React.createElement(registration.component, {
+    wide: true, useQuota: hookOf({ ...snap, data: { ...snap.data, windows: [
+      { id: '5h', label: '5h', percent, resetAt: Date.now() + 90_000 },
+    ] } }), refresh: () => {},
+  }))
+  assert.equal((boundaryWide.match(/class="dshGlmRingTrack"/g) ?? []).length, 2, 'both compact and detail keep a track at ' + percent + '%')
+  if (percent === 0) assert.ok(!boundaryWide.includes('dshGlmRingArc'), 'empty compact/detail rings have no false colored dot')
+  else assert.equal((boundaryWide.match(/stroke-dasharray="100 0"/g) ?? []).length, 2, 'full compact/detail rings paint the complete circle')
+}
 assert.ok(oneUsed.includes('dshGlmValue">1%<'), 'the minimum arc never rewrites the printed percent')
 
 // Unit boundary: rounding happens before the unit is chosen, so 999,999
@@ -353,7 +382,7 @@ const extraWin = { ...snap, data: { ...snap.data, windows: [
 const railExtra = renderToString(React.createElement(registration.component, {
   wide: false, useQuota: hookOf(extraWin), refresh: () => {},
 }))
-assert.equal((railExtra.match(/class="dshGlmRing t\d"/g) ?? []).length, 3, 'unknown token window adds a ring; non-token window does not')
+assert.equal((railExtra.match(/class="dshGlmRing t\d dshGlmRailRing"/g) ?? []).length, 3, 'unknown token window adds a ring; non-token window does not')
 assert.ok(railExtra.includes('Tok(u9,n2) 3%'), 'unknown token window renders with its raw label')
 const wideExtra = renderToString(React.createElement(registration.component, {
   wide: true, useQuota: hookOf(extraWin), refresh: () => {},
@@ -391,7 +420,7 @@ const railNoWeekly = renderToString(React.createElement(registration.component, 
   useQuota: hookOf(noWeekly),
   refresh: () => {},
 }))
-assert.equal((railNoWeekly.match(/class="dshGlmRing t\d"/g) ?? []).length, 1, 'no weekly window: rail shows only the 5h ring')
+assert.equal((railNoWeekly.match(/class="dshGlmRing t\d dshGlmRailRing"/g) ?? []).length, 1, 'no weekly window: rail shows only the 5h ring')
 assert.ok(!railNoWeekly.includes('>3d<'), 'no weekly window: no weekly countdown in rail')
 // Details stay in the DOM for accessibility, while CSS keeps the popover out of layout until opened.
 assert.ok(wideNoWeekly.includes('aria-expanded="false"'), 'compact trigger starts closed')
